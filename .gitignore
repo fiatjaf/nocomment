@@ -1,0 +1,4 @@
+node_modules
+lib
+example/main.build.js
+yarn.lock

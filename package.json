@@ -1,0 +1,26 @@
+{
+  "name": "nostr-comments-widget-react",
+  "version": "0.1.0",
+  "author": "fiatjaf",
+  "license": "MIT",
+  "repository": "https://github.com/fiatjaf/nostr-comments-widget-react",
+  "dependencies": {
+    "events": "^3.3.0",
+    "nostr-tools": "^0.23.2",
+    "react": "^18.1.0",
+    "use-array": "^1.0.0",
+    "use-boolean": "^1.0.1",
+    "use-computed-state": "^1.2.0"
+  },
+  "devDependencies": {
+    "@esbuild-plugins/node-globals-polyfill": "^0.1.1",
+    "esbuild": "^0.14.11",
+    "esbuild-plugin-alias": "^0.2.1",
+    "eslint": "^8.6.0",
+    "eslint-plugin-babel": "^5.3.1",
+    "eslint-plugin-react": "^7.28.0",
+    "prettier": "^2.5.1",
+    "react-dom": "^18.1.0",
+    "readable-stream": "^3.6.0"
+  }
+}
