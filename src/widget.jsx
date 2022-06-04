@@ -20,7 +20,7 @@ export default function NostrComments({relays = []}) {
   const [editable, enable, disable] = useBoolean(true)
   const [notices, {push: pushNotice, filter: filterNotices}] = useArray([])
   const [metadata, setMetadata] = useState({})
-  const metadataSubscription = useRef(null)
+  const metasubRef = useRef(null)
 
   useEffect(() => {
     relays.forEach(url => {
@@ -78,31 +78,37 @@ export default function NostrComments({relays = []}) {
   useEffect(() => {
     if (!publicKey) return
 
-    // start listening for metadata information
-    metadataSubscription.current = (metadataSubscription.current || pool).sub({
-      filter: {authors: wantedMetadata.concat(publicKey)},
-      cb: event => {
-        if (
-          !metadata[event.pubkey] ||
-          metadata[event.pubkey].created_at < event.created_at
-        ) {
-          metadata[event.pubkey] = event
-          setMetadata({...metadata})
+    const filter = {authors: wantedMetadata.concat(publicKey)}
+    if (metasubRef.current) {
+      // update metadata subscription with new keys
+      metasubRef.current.sub({filter})
+    } else {
+      // start listening for metadata information
+      metasubRef.current = pool.sub({
+        filter,
+        cb: event => {
+          if (
+            !metadata[event.pubkey] ||
+            metadata[event.pubkey].created_at < event.created_at
+          ) {
+            metadata[event.pubkey] = event
+            setMetadata({...metadata})
 
-          try {
-            const nip05 = JSON.parse(event.content).nip05
-            queryName(nip05).then(name => {
-              if (name === nip05) {
-                event.nip05verified = true
-              }
-            })
-          } catch (err) {}
+            try {
+              const nip05 = JSON.parse(event.content).nip05
+              queryName(nip05).then(name => {
+                if (name === nip05) {
+                  event.nip05verified = true
+                }
+              })
+            } catch (err) {}
+          }
         }
-      }
-    })
+      })
+    }
 
     return () => {
-      metadataSubscription.current.unsub()
+      metasubRef.current.unsub()
     }
   }, [publicKey, wantedMetadata])
 
