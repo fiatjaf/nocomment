@@ -15,3 +15,21 @@ export function normalizeURL(raw) {
       .replace(/\/*$/, '') // remove slashes from the end of path
   )
 }
+
+export function nameFromMetadata(event) {
+  try {
+    const data = JSON.parse(event.content)
+    if (data.nip05 && event.nip05verified) {
+      if (data.nip05.startsWith('_@')) return data.nip05.slice(2)
+      return data.nip05
+    }
+    if (data.name && data.name.length) return data.name
+
+    throw new Error('')
+  } catch (err) {
+    if (event.pubkey)
+      return `${event.pubkey.slice(0, 4)}…${event.pubkey.slice(-3)}`
+
+    return '_'
+  }
+}

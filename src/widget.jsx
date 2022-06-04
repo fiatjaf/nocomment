@@ -1,48 +1,59 @@
-import React, {useState, useEffect} from 'react'
+import React, {useState, useEffect, useRef} from 'react'
 import useComputedState from 'use-computed-state'
 import useArray from 'use-array'
 import {useBoolean} from 'use-boolean'
+import {useDebounce} from 'use-debounce'
+import uniq from 'uniq'
 import {generatePrivateKey, getPublicKey, relayPool} from 'nostr-tools'
+import {queryName} from 'nostr-tools/nip05'
 
-import {normalizeURL} from './util'
+import {normalizeURL, nameFromMetadata} from './util'
 
 const url = normalizeURL(location.href)
 const pool = relayPool()
 
 export default function NostrComments({relays = []}) {
   const [comment, setComment] = useState('')
-  const [nip07PublicKey, setNip07PublicKey] = useState(null)
-  const [privateKey, setPrivateKey] = useState(null)
-  const [events, {push: pushEvent, sort: sortEvents}] = useArray([])
+  const [hasNip07, setNip07] = useBoolean(false)
+  const [publicKey, setPublicKey] = useState(null)
+  const [events, setEvents] = useState({})
   const [editable, enable, disable] = useBoolean(true)
-  const [notices, {push: pushNotice, filterNotices}] = useArray([])
+  const [notices, {push: pushNotice, filter: filterNotices}] = useArray([])
+  const [metadata, setMetadata] = useState({})
+  const metadataSubscription = useRef(null)
+
+  useEffect(() => {
+    relays.forEach(url => {
+      pool.addRelay(url, {read: true, write: true})
+    })
+
+    pool.onNotice((notice, relay) => {
+      showNotice(`${relay.url} says: ${notice}`)
+    })
+
+    let sub = pool.sub({
+      filter: {'#r': [url]},
+      cb: event => {
+        if (event.id in events) return
+        events[event.id] = event
+        setEvents({...events})
+      }
+    })
+
+    return () => {
+      sub.unsub()
+    }
+  }, [])
 
   useEffect(() => {
     ;(async () => {
-      relays.forEach(url => {
-        pool.addRelay(url, {read: true, write: true})
-      })
-
-      pool.onNotice((notice, relay) => {
-        showNotice(`${relay.url} says: ${notice}`)
-      })
-
-      pool.sub({
-        filter: {'#r': [url]},
-        cb: event => {
-          if (event.id in events) return
-
-          pushEvent(event)
-          sortEvents((a, b) => a.created_at - b.created_at)
-        }
-      })
-
       // check if they have a nip07 nostr extension
       if (window.nostr) {
         try {
           // and if it has a key stored on it
           const pubkey = await window.nostr.getPublicKey()
-          setNip07PublicKey(pubkey)
+          setNip07()
+          setPublicKey(pubkey)
         } catch (err) {}
       } else {
         // otherwise use a key from localStorage or generate a new one
@@ -52,13 +63,51 @@ export default function NostrComments({relays = []}) {
           localStorage.setItem('nostrkey', privateKey)
         }
         pool.setPrivateKey(privateKey)
-        setPrivateKey(privateKey)
+        setPublicKey(getPublicKey(privateKey))
       }
     })()
   }, [])
 
+  const wantedMetadataImmediate = useComputedState(
+    () => uniq(Object.values(events).map(ev => ev.pubkey)),
+    [events],
+    []
+  )
+  const [wantedMetadata] = useDebounce(wantedMetadataImmediate, 2000)
+
+  useEffect(() => {
+    if (!publicKey) return
+
+    // start listening for metadata information
+    metadataSubscription.current = (metadataSubscription.current || pool).sub({
+      filter: {authors: wantedMetadata.concat(publicKey)},
+      cb: event => {
+        if (
+          !metadata[event.pubkey] ||
+          metadata[event.pubkey].created_at < event.created_at
+        ) {
+          metadata[event.pubkey] = event
+          setMetadata({...metadata})
+
+          try {
+            const nip05 = JSON.parse(event.content).nip05
+            queryName(nip05).then(name => {
+              if (name === nip05) {
+                event.nip05verified = true
+              }
+            })
+          } catch (err) {}
+        }
+      }
+    })
+
+    return () => {
+      metadataSubscription.current.unsub()
+    }
+  }, [publicKey, wantedMetadata])
+
   const orderedEvents = useComputedState(
-    () => events.sort((a, b) => a.created_at - b.created_at),
+    () => Object.values(events).sort((a, b) => a.created_at - b.created_at),
     [events],
     []
   )
@@ -76,7 +125,16 @@ export default function NostrComments({relays = []}) {
         }}
       >
         <span style={{textAlign: 'right'}}>
-          comments on <em style={{color: 'blue'}}>{url}</em>
+          commenting on <em style={{color: 'blue'}}>{url}</em> as{' '}
+          <em style={{color: 'green'}}>
+            {nameFromMetadata(metadata[publicKey] || {pubkey: publicKey})}
+          </em>{' '}
+          using relays{' '}
+          {relays.map(url => (
+            <em key={url} style={{color: 'orange', paddingRight: '5px'}}>
+              {url}
+            </em>
+          ))}
         </span>
         <textarea
           value={comment}
@@ -118,7 +176,7 @@ export default function NostrComments({relays = []}) {
       </div>
       <div style={{backgroundColor: 'yellow'}}>
         {notices.map(n => (
-          <div key={n.time}>{n.text}</div>
+          <div key={`${n.text}${n.time}`}>{n.text}</div>
         ))}
       </div>
     </div>
@@ -137,7 +195,7 @@ export default function NostrComments({relays = []}) {
     disable()
 
     let event = {
-      pubkey: nip07PublicKey || getPublicKey(privateKey),
+      pubkey: publicKey,
       created_at: Math.round(Date.now() / 1000),
       kind: 1,
       tags: [['r', url]],
@@ -146,7 +204,7 @@ export default function NostrComments({relays = []}) {
 
     // we will sign this event using the nip07 extension if it was detected
     // otherwise it should just be signed automatically when we call .publish()
-    if (window.nostr && nip07PublicKey) {
+    if (hasNip07) {
       const response = await window.nostr.signEvent(event)
       if (response.error) {
         throw new Error(response.error)
