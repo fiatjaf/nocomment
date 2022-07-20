@@ -32,7 +32,7 @@ export default function NostrComments({relays = []}) {
     })
 
     let sub = pool.sub({
-      filter: {'#r': [url]},
+      filter: {kinds: [34], '#r': [url]},
       cb: event => {
         if (event.id in events) return
         events[event.id] = event
@@ -203,7 +203,7 @@ export default function NostrComments({relays = []}) {
     let event = {
       pubkey: publicKey,
       created_at: Math.round(Date.now() / 1000),
-      kind: 1,
+      kind: 34,
       tags: [['r', url]],
       content: comment
     }
