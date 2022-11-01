@@ -5,11 +5,10 @@ This is an embeddable nostr comments widget that "just works".
 Try it out at [https://nostr-comments.web.app/](https://nostr-comments.web.app/) or add it to your own site
 
 ## Demo/Sample
+1. Default styling
 ![Default styling](demo/nostr-sample-screen-01.png)
-Default styling
 
-![Custom styling](demo/nostr-sample-screen-02.png)
-Custom styling
+2. Custom styling
 ```
 --nostr-comments-background: #003049;
 --nostr-comments-text-color: #eae2b7;
@@ -17,6 +16,7 @@ Custom styling
 --nostr-comments-primary-color: #fcbf49;
 --nostr-comments-primary-contrast: #003049;
 ```
+![Custom styling](demo/nostr-sample-screen-02.png)
 
 ## Installation
 
