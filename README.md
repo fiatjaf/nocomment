@@ -5,6 +5,14 @@ This is an embeddable nostr comments widget that "just works".
 Try it out at [nostr-comments-widget-react.vercel.app](https://nostr-comments-widget-react.vercel.app/) or add it to your own site:
 
 ## Demo/Sample
+![Default styling](demo/nostr-sample-screen-01.png)
+
+![Custom styling](demo/nostr-sample-screen-02.png)
+--nostr-comments-background: #003049;
+--nostr-comments-text-color: #eae2b7;
+--nostr-comments-text-color-dark: #fcbf49;
+--nostr-comments-primary-color: #fcbf49;
+--nostr-comments-primary-contrast: #003049;
 
 ## Installation
 
@@ -56,6 +64,7 @@ The widget can be styled by the following CSS variables
  - User key generation / import, followed by profile setup (Name and avatar)
  - More styles
  - Comments pagination
+ - Typescript
  - [Demand based] Nested comments
  - [Demand based] Markdown
  - [Long shot] Pay sats to comment via Lightning integration
