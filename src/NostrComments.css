@@ -79,7 +79,7 @@
 
 .textarea {
     background-color: var(--nostr-comments-background, white);
-    background-color: var(--nostr-comments-text-color, white);
+    color: var(--nostr-comments-text-color, white);
     border: none;
     outline: none;
     width: 100%;

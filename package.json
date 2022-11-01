@@ -1,6 +1,6 @@
 {
   "name": "nostr-comments-widget-react",
-  "version": "0.1.15",
+  "version": "0.1.18",
   "description": "This is an embeddable nostr comments widget that just works",
   "main": "lib/index.js",
   "module": "lib/index.js",
