@@ -10,7 +10,8 @@ const watch = process.argv.indexOf('watch') !== -1
 esbuild
   .build({
     bundle: true,
-    entryPoints: ['./src/widget.jsx'],
+    entryPoints: ['./src/index.js'],
+    external: ['react', 'react-dom'],
     outdir: './lib',
     format: 'esm',
     plugins: [

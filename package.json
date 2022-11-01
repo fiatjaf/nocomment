@@ -1,18 +1,24 @@
 {
   "name": "nostr-comments-widget-react",
-  "version": "0.1.0",
-  "author": "fiatjaf",
+  "version": "0.1.19",
+  "description": "This is an embeddable nostr comments widget that just works",
+  "main": "lib/index.js",
+  "module": "lib/index.js",
+  "scripts": {
+    "build": "node build.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "fiatjaf, saiy2k",
   "license": "MIT",
-  "repository": "https://github.com/fiatjaf/nostr-comments-widget-react",
+  "repository": "https://github.com/saiy2k/nostr-comments-widget-react",
   "dependencies": {
+    "dayjs": "^1.11.6",
     "events": "^3.3.0",
     "nostr-tools": "^0.23.3",
-    "react": "^18.1.0",
+    "react": "^18.2.0",
     "uniq": "^1.0.1",
-    "use-array": "^1.0.0",
-    "use-boolean": "^1.0.1",
     "use-computed-state": "^1.2.0",
-    "use-debounce": "^8.0.1"
+    "use-debounce": "^8.0.4"
   },
   "devDependencies": {
     "@esbuild-plugins/node-globals-polyfill": "^0.1.1",
@@ -24,5 +30,11 @@
     "prettier": "^2.5.1",
     "react-dom": "^18.1.0",
     "readable-stream": "^3.6.0"
-  }
+  },
+  "peerDependencies": {
+    "react": "^18.2.0"
+  },
+  "files": [
+    "lib"
+  ]
 }
