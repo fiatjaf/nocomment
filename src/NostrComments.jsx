@@ -1,7 +1,5 @@
 import React, {useState, useEffect, useRef} from 'react'
 import useComputedState from 'use-computed-state'
-import useArray from 'use-array'
-import {useBoolean} from 'use-boolean'
 import {useDebounce} from 'use-debounce'
 import uniq from 'uniq'
 import {generatePrivateKey, getPublicKey, relayPool} from 'nostr-tools'
@@ -12,13 +10,13 @@ import {normalizeURL, nameFromMetadata} from './util'
 const url = normalizeURL(location.href)
 const pool = relayPool()
 
-export default function NostrComments({relays = []}) {
+export function NostrComments({relays = []}) {
   const [comment, setComment] = useState('')
-  const [hasNip07, setNip07] = useBoolean(false)
+  const [hasNip07, setNip07] = useState(false)
   const [publicKey, setPublicKey] = useState(null)
   const [events, setEvents] = useState({})
-  const [editable, enable, disable] = useBoolean(true)
-  const [notices, {push: pushNotice, filter: filterNotices}] = useArray([])
+  const [editable, setEditable] = useState(true)
+  const [notices, setNotices] = useState([])
   const [metadata, setMetadata] = useState({})
   const metasubRef = useRef(null)
 
@@ -39,6 +37,7 @@ export default function NostrComments({relays = []}) {
         setEvents({...events})
       }
     })
+    console.log('pool: ', pool);
 
     return () => {
       sub.unsub()
@@ -52,7 +51,7 @@ export default function NostrComments({relays = []}) {
         try {
           // and if it has a key stored on it
           const pubkey = await window.nostr.getPublicKey()
-          setNip07()
+          setNip07(true)
           setPublicKey(pubkey)
         } catch (err) {}
       } else {
@@ -73,7 +72,9 @@ export default function NostrComments({relays = []}) {
     [events],
     []
   )
+
   const [wantedMetadata] = useDebounce(wantedMetadataImmediate, 2000)
+  // const wantedMetadata = wantedMetadataImmediate;
 
   useEffect(() => {
     if (!publicKey) return
@@ -120,85 +121,88 @@ export default function NostrComments({relays = []}) {
 
   return (
     <div>
+    <div
+    style={{
+      display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'flex-end',
+        padding: '4px',
+        margin: '6px',
+        border: '1px solid orange'
+    }}
+    >
+    <span style={{textAlign: 'right'}}>
+    commenting on <em style={{color: 'blue'}}>{url}</em> as{' '}
+    <em style={{color: 'green'}}>
+    {nameFromMetadata(metadata[publicKey] || {pubkey: publicKey})}
+    </em>{' '}
+    using relays{' '}
+    {relays.map(url => (
+      <em key={url} style={{color: 'orange', paddingRight: '5px'}}>
+      {url}
+      </em>
+    ))}
+    </span>
+    <textarea
+    value={comment}
+    readOnly={!editable}
+    onChange={e => setComment(e.target.value)}
+    autoFocus
+    style={{border: 'none', outline: 'none', width: '100%'}}
+    />
+    <button style={{margin: '4px 0 4px'}} onClick={publishEvent}>
+    post comment
+    </button>
+    </div>
+    <div>
+    {orderedEvents.map(evt => (
       <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'flex-end',
-          padding: '4px',
+      key={evt.id}
+      style={{
+        padding: '8px',
           margin: '6px',
-          border: '1px solid orange'
-        }}
+          border: '1px solid silver'
+      }}
       >
-        <span style={{textAlign: 'right'}}>
-          commenting on <em style={{color: 'blue'}}>{url}</em> as{' '}
-          <em style={{color: 'green'}}>
-            {nameFromMetadata(metadata[publicKey] || {pubkey: publicKey})}
-          </em>{' '}
-          using relays{' '}
-          {relays.map(url => (
-            <em key={url} style={{color: 'orange', paddingRight: '5px'}}>
-              {url}
-            </em>
-          ))}
-        </span>
-        <textarea
-          value={comment}
-          readOnly={!editable}
-          onChange={e => setComment(e.target.value)}
-          autoFocus
-          style={{border: 'none', outline: 'none', width: '100%'}}
-        />
-        <button style={{margin: '4px 0 4px'}} onClick={publishEvent}>
-          post comment
-        </button>
-      </div>
+      <div
+      style={{
+        display: 'flex',
+          justifyContent: 'space-between',
+          fontSize: '90%',
+          fontFamily: 'monospace'
+      }}
+      >
+      <div>from {evt.pubkey.slice(0, 5)}…</div>
       <div>
-        {orderedEvents.map(evt => (
-          <div
-            key={evt.id}
-            style={{
-              padding: '8px',
-              margin: '6px',
-              border: '1px solid silver'
-            }}
-          >
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                fontSize: '90%',
-                fontFamily: 'monospace'
-              }}
-            >
-              <div>from {evt.pubkey.slice(0, 5)}…</div>
-              <div>
-                {new Date(evt.created_at * 1000).toISOString().split('T')[0]}
-              </div>
-            </div>
-            <div style={{fontSize: '110%'}}>{evt.content}</div>
-          </div>
-        ))}
+      {new Date(evt.created_at * 1000).toISOString().split('T')[0]}
       </div>
-      <div style={{backgroundColor: 'yellow'}}>
-        {notices.map(n => (
-          <div key={`${n.text}${n.time}`}>{n.text}</div>
-        ))}
       </div>
+      <div style={{fontSize: '110%'}}>{evt.content}</div>
+      </div>
+    ))}
+    </div>
+    <div style={{backgroundColor: 'yellow'}}>
+    {notices.map(n => (
+      <div key={`${n.text}${n.time}`}>{n.text}</div>
+    ))}
+    </div>
     </div>
   )
 
   function showNotice(text) {
-    pushNotice({time: Date.now(), text})
+    setNotices([
+      ...notices,
+      {time: Date.now(), text}
+    ]);
     setTimeout(() => {
-      filterNotices(n => n.time - Date.now() > 5000)
+      setNotices(notices.filter(n => n.time - Date.now() > 5000));
     }, 5050)
   }
 
   async function publishEvent(ev) {
     ev.preventDefault()
 
-    disable()
+    setEditable(false)
 
     let event = {
       pubkey: publicKey,
@@ -207,6 +211,8 @@ export default function NostrComments({relays = []}) {
       tags: [['r', url]],
       content: comment
     }
+
+    console.log('event: ', event);
 
     // we will sign this event using the nip07 extension if it was detected
     // otherwise it should just be signed automatically when we call .publish()
@@ -222,22 +228,25 @@ export default function NostrComments({relays = []}) {
       showNotice(
         `failed to publish event ${event.id.slice(0, 5)}… to any relay.`
       )
-      enable()
-    }, 4000)
+      setEditable(true)
+    }, 8000)
 
+    console.log('publishing...');
     pool.publish(event, (status, relay) => {
+      console.log('publish status: ', status, relay);
       switch (status) {
         case -1:
           showNotice(`failed to send ${JSON.stringify(event)} to ${relay}`)
-          enable()
+          setEditable(true)
           break
         case 1:
           clearTimeout(publishTimeout)
           showNotice(`event ${event.id.slice(0, 5)}… published to ${relay}.`)
           setComment('')
-          enable()
+          setEditable(true)
           break
       }
     })
   }
 }
+
