@@ -6,13 +6,17 @@ Try it out at [nostr-comments-widget-react.vercel.app](https://nostr-comments-wi
 
 ## Demo/Sample
 ![Default styling](demo/nostr-sample-screen-01.png)
+Default styling
 
 ![Custom styling](demo/nostr-sample-screen-02.png)
+Custom styling
+```
 --nostr-comments-background: #003049;
 --nostr-comments-text-color: #eae2b7;
 --nostr-comments-text-color-dark: #fcbf49;
 --nostr-comments-primary-color: #fcbf49;
 --nostr-comments-primary-contrast: #003049;
+```
 
 ## Installation
 
