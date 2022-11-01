@@ -4,16 +4,17 @@ This is an embeddable nostr comments widget that "just works".
 
 Try it out at [nostr-comments-widget-react.vercel.app](https://nostr-comments-widget-react.vercel.app/) or add it to your own site:
 
-## Sample
+## Demo/Sample
 
 ## Installation
 
-1. npm install nostr-comments-widget-react
+1. **npm install nostr-comments-widget-react**
 2. Don't create an account anywhere
 3. Don't configure a database
 4. It just works. You now have a chat about your website. The url is the identifier.
 
 ## Usage
+```
 import { NostrComments } from 'nostr-comments-widget-react'
 import 'nostr-comments-widget-react/lib/index.css'
 
@@ -30,21 +31,26 @@ function App() {
     ...
   );
 }
+```
 
 ## Customization
 The widget can be styled by the following CSS variables
+```
   --nostr-comments-background - Background color
   --nostr-comments-text-color - Text color
   --nostr-comments-text-color-dark - Pubic key color
   --nostr-comments-primary-color - Button BG color
   --nostr-comments-primary-contrast - Button text color
+```
 
 ### Default:
+```
   --nostr-comments-background: white
   --nostr-comments-text-color: #888
   --nostr-comments-text-color-dark: #222
   --nostr-comments-primary-color: #0d6efd
   --nostr-comments-primary-contrast: white
+```
   
 ## Roadmap
  - User key generation / import, followed by profile setup (Name and avatar)
