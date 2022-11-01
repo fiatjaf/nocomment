@@ -192,35 +192,6 @@ export function NostrComments({relays = []}) {
 
 
       </Modal>}
-      { /*
-      <Modal
-        isOpen={modalIsOpen}
-        onAfterOpen={afterOpenModal}
-        onRequestClose={closeModal}
-        style={customStyles}
-        contentLabel="Example Modal"
-      >
-
-            <span ref={infoRef}>
-              Commenting as{' '}
-              <em style={{color: 'green'}}>
-                {nameFromMetadata(metadata[publicKey] || {pubkey: publicKey})}
-              </em>{' '}
-              using relays <br/>
-              {relays.map(url => (
-                <em key={url} style={{color: 'orange', paddingRight: '5px'}}>
-                  {url} <br/>
-                </em>
-              ))}
-            </span>
-
-            <br/>
-            <br/>
-
-            <button className='post-button' onClick={closeModal}>close</button>
-
-      </Modal>
-         */ }
 
     </div>
   )
