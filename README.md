@@ -2,7 +2,7 @@
 
 This is an embeddable nostr comments widget that "just works".
 
-Try it out at [nostr-comments-widget-react.vercel.app](https://nostr-comments-widget-react.vercel.app/) or add it to your own site:
+Try it out at [https://nostr-comments.web.app/](https://nostr-comments.web.app/) or add it to your own site
 
 ## Demo/Sample
 ![Default styling](demo/nostr-sample-screen-01.png)
