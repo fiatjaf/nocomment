@@ -1,6 +1,6 @@
 {
   "name": "nostr-comments-widget-react",
-  "version": "0.1.2",
+  "version": "0.1.10",
   "description": "This is an embeddable nostr comments widget that just works",
   "main": "lib/index.js",
   "module": "lib/index.js",
@@ -12,6 +12,7 @@
   "license": "MIT",
   "repository": "https://github.com/saiy2k/nostr-comments-widget-react",
   "dependencies": {
+    "dayjs": "^1.11.6",
     "events": "^3.3.0",
     "nostr-tools": "^0.23.3",
     "react": "^18.2.0",

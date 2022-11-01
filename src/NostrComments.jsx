@@ -4,6 +4,11 @@ import {useDebounce} from 'use-debounce'
 import uniq from 'uniq'
 import {generatePrivateKey, getPublicKey, relayPool} from 'nostr-tools'
 import {queryName} from 'nostr-tools/nip05'
+import dayjs from 'dayjs'
+import relativeTime from 'dayjs/plugin/relativeTime'
+dayjs.extend(relativeTime)
+
+import './NostrComments.css'
 
 import {normalizeURL, nameFromMetadata} from './util'
 
@@ -120,72 +125,84 @@ export function NostrComments({relays = []}) {
   )
 
   return (
-    <div>
-    <div
-    style={{
-      display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'flex-end',
-        padding: '4px',
-        margin: '6px',
-        border: '1px solid orange'
-    }}
-    >
-    <span style={{textAlign: 'right'}}>
-    commenting on <em style={{color: 'blue'}}>{url}</em> as{' '}
-    <em style={{color: 'green'}}>
-    {nameFromMetadata(metadata[publicKey] || {pubkey: publicKey})}
-    </em>{' '}
-    using relays{' '}
-    {relays.map(url => (
-      <em key={url} style={{color: 'orange', paddingRight: '5px'}}>
-      {url}
-      </em>
-    ))}
-    </span>
-    <textarea
-    value={comment}
-    readOnly={!editable}
-    onChange={e => setComment(e.target.value)}
-    autoFocus
-    style={{border: 'none', outline: 'none', width: '100%'}}
-    />
-    <button style={{margin: '4px 0 4px'}} onClick={publishEvent}>
-    post comment
-    </button>
-    </div>
-    <div>
-    {orderedEvents.map(evt => (
-      <div
-      key={evt.id}
-      style={{
-        padding: '8px',
-          margin: '6px',
-          border: '1px solid silver'
-      }}
-      >
-      <div
-      style={{
-        display: 'flex',
-          justifyContent: 'space-between',
-          fontSize: '90%',
-          fontFamily: 'monospace'
-      }}
-      >
-      <div>from {evt.pubkey.slice(0, 5)}…</div>
+    <div className="comment-widget-container">
+      <div className='comment-input-section'>
+        <textarea className='textarea'
+          value={comment}
+          readOnly={!editable}
+          onChange={e => setComment(e.target.value)}
+          autoFocus
+        />
+        <div className='comment-input-section-row2'>
+
+            <button className='input-button' onClick={infoEvent}>
+              <svg className='svg-info' version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                  width="24px" height="24px" viewBox="0 0 416.979 416.979" xmlSpace="preserve">
+
+                  <g>
+                      <path d="M356.004,61.156c-81.37-81.47-213.377-81.551-294.848-0.182c-81.47,81.371-81.552,213.379-0.181,294.85
+                      c81.369,81.47,213.378,81.551,294.849,0.181C437.293,274.636,437.375,142.626,356.004,61.156z M237.6,340.786
+                      c0,3.217-2.607,5.822-5.822,5.822h-46.576c-3.215,0-5.822-2.605-5.822-5.822V167.885c0-3.217,2.607-5.822,5.822-5.822h46.576
+                      c3.215,0,5.822,2.604,5.822,5.822V340.786z M208.49,137.901c-18.618,0-33.766-15.146-33.766-33.765
+                      c0-18.617,15.147-33.766,33.766-33.766c18.619,0,33.766,15.148,33.766,33.766C242.256,122.755,227.107,137.901,208.49,137.901z"/>
+                  </g>
+
+              </svg>
+            </button>
+            <button className='post-button' onClick={publishEvent} disabled={!editable}>
+              { editable ? 'Post comment': 'Submitting' }
+            </button>
+        </div>
+      </div>
       <div>
-      {new Date(evt.created_at * 1000).toISOString().split('T')[0]}
+        {orderedEvents.map(evt => (
+          <div className='comment-card' key={evt.id}>
+            <div style={{ fontFamily: 'monospace', fontSize: '1.2em' }}>
+                <span className='comment-title'> from <b> {evt.pubkey.slice(0, 10)}…</b> </span>
+                <span style={{ fontFamily: 'arial', fontSize: '0.7em' }}>
+                    { dayjs(evt.created_at * 1000).from(new Date()) }
+                </span>
+            </div>
+            <div style={{ marginTop: '8px' }}>{evt.content}</div>
+          </div>
+        ))}
       </div>
+      <div style={{backgroundColor: 'yellow'}}>
+        {notices.map(n => (
+          <div key={`${n.text}${n.time}`}>{n.text}</div>
+        ))}
       </div>
-      <div style={{fontSize: '110%'}}>{evt.content}</div>
-      </div>
-    ))}
-    </div>
-    <div style={{backgroundColor: 'yellow'}}>
-    {notices.map(n => (
-      <div key={`${n.text}${n.time}`}>{n.text}</div>
-    ))}
-    </div>
+  
+      { /*
+      <Modal
+        isOpen={modalIsOpen}
+        onAfterOpen={afterOpenModal}
+        onRequestClose={closeModal}
+        style={customStyles}
+        contentLabel="Example Modal"
+      >
+
+            <span ref={infoRef}>
+              Commenting as{' '}
+              <em style={{color: 'green'}}>
+                {nameFromMetadata(metadata[publicKey] || {pubkey: publicKey})}
+              </em>{' '}
+              using relays <br/>
+              {relays.map(url => (
+                <em key={url} style={{color: 'orange', paddingRight: '5px'}}>
+                  {url} <br/>
+                </em>
+              ))}
+            </span>
+
+            <br/>
+            <br/>
+
+            <button className='post-button' onClick={closeModal}>close</button>
+
+      </Modal>
+         */ }
+
     </div>
   )
 
@@ -197,6 +214,10 @@ export function NostrComments({relays = []}) {
     setTimeout(() => {
       setNotices(notices.filter(n => n.time - Date.now() > 5000));
     }, 5050)
+  }
+
+  async function infoEvent() {
+      openModal();
   }
 
   async function publishEvent(ev) {
