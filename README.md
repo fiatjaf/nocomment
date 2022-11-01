@@ -6,6 +6,7 @@ Try it out at [https://nostr-comments.web.app/](https://nostr-comments.web.app/)
 
 ## Demo/Sample
 1. Default styling
+
 ![Default styling](demo/nostr-sample-screen-01.png)
 
 2. Custom styling
