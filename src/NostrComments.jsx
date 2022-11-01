@@ -4,6 +4,7 @@ import {useDebounce} from 'use-debounce'
 import uniq from 'uniq'
 import {generatePrivateKey, getPublicKey, relayPool} from 'nostr-tools'
 import {queryName} from 'nostr-tools/nip05'
+import Modal from './Modal'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 dayjs.extend(relativeTime)
@@ -16,6 +17,7 @@ const url = normalizeURL(location.href)
 const pool = relayPool()
 
 export function NostrComments({relays = []}) {
+  const [isInfoOpen, setIsInfoOpen] = useState(false)
   const [comment, setComment] = useState('')
   const [hasNip07, setNip07] = useState(false)
   const [publicKey, setPublicKey] = useState(null)
@@ -119,7 +121,7 @@ export function NostrComments({relays = []}) {
   }, [publicKey, wantedMetadata])
 
   const orderedEvents = useComputedState(
-    () => Object.values(events).sort((a, b) => a.created_at - b.created_at),
+    () => Object.values(events).sort((a, b) => b.created_at - a.created_at),
     [events],
     []
   )
@@ -135,7 +137,7 @@ export function NostrComments({relays = []}) {
         />
         <div className='comment-input-section-row2'>
 
-            <button className='input-button' onClick={infoEvent}>
+            <button className='info-button' onClick={infoEvent}>
               <svg className='svg-info' version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
                   width="24px" height="24px" viewBox="0 0 416.979 416.979" xmlSpace="preserve">
 
@@ -155,6 +157,11 @@ export function NostrComments({relays = []}) {
         </div>
       </div>
       <div>
+        {notices.map(n => (
+          <div className='notice-div' key={`${n.text}${n.time}`}>{n.text}</div>
+        ))}
+      </div>
+      <div>
         {orderedEvents.map(evt => (
           <div className='comment-card' key={evt.id}>
             <div style={{ fontFamily: 'monospace', fontSize: '1.2em' }}>
@@ -167,12 +174,24 @@ export function NostrComments({relays = []}) {
           </div>
         ))}
       </div>
-      <div style={{backgroundColor: 'yellow'}}>
-        {notices.map(n => (
-          <div key={`${n.text}${n.time}`}>{n.text}</div>
-        ))}
-      </div>
-  
+
+      {isInfoOpen && <Modal setIsOpen={setIsInfoOpen} title="Info">
+
+        <span>
+          Commenting as{' '}
+          <em style={{color: 'green'}}>
+          {nameFromMetadata(metadata[publicKey] || {pubkey: publicKey})}
+          </em>{' '}
+          using relays <br/>
+          {relays.map(url => (
+            <em key={url} style={{color: 'orange', paddingRight: '5px'}}>
+            {url} <br/>
+            </em>
+          ))}
+        </span>
+
+
+      </Modal>}
       { /*
       <Modal
         isOpen={modalIsOpen}
@@ -217,7 +236,7 @@ export function NostrComments({relays = []}) {
   }
 
   async function infoEvent() {
-      openModal();
+      setIsInfoOpen(true);
   }
 
   async function publishEvent(ev) {

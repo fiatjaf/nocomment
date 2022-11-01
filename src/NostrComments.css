@@ -2,6 +2,7 @@
 .comment-widget-container {
     box-shadow: 0px 6px 5px -3px rgba(0,0,0,0.1);
     background-color: var(--nostr-comment-box-background, white);
+    color: var(--nostr-comment-box-color, #888);
     padding: 18px;
     border-radius: 8px;
     font-family: arial;
@@ -60,8 +61,11 @@
     background: var(--nostr-comment-box-background, white);
 }
 
-.comment-card {
+.notice-div {
     color: var(--nostr-comment-box-color, #888);
+}
+
+.comment-card {
     padding: 0px;
     margin: 0px;
     padding-top: 12px;
