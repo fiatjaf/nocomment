@@ -33,3 +33,14 @@ export function nameFromMetadata(event) {
     return '_'
   }
 }
+
+export function pictureFromMetadata(event) {
+  try {
+    const data = JSON.parse(event.content)
+    if (data.picture && data.picture.length) return data.picture
+
+    throw new Error('')
+  } catch (err) {
+    return 'https://img.icons8.com/ios/154/anonymous-mask.png'
+  }
+}
