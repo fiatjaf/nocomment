@@ -1,1 +1,1 @@
-export { NostrComments } from './NostrComments';
+export {NoComment} from './NoComment'

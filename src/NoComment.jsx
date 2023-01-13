@@ -9,14 +9,14 @@ import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 dayjs.extend(relativeTime)
 
-import './NostrComments.css'
+import './NoComment.css'
 
 import {normalizeURL, nameFromMetadata} from './util'
 
 const url = normalizeURL(location.href)
 const pool = relayPool()
 
-export function NostrComments({relays = []}) {
+export function NoComment({relays = []}) {
   const [isInfoOpen, setIsInfoOpen] = useState(false)
   const [comment, setComment] = useState('')
   const [hasNip07, setNip07] = useState(false)
@@ -44,7 +44,7 @@ export function NostrComments({relays = []}) {
         setEvents({...events})
       }
     })
-    console.log('pool: ', pool);
+    console.log('pool: ', pool)
 
     return () => {
       sub.unsub()
@@ -128,86 +128,101 @@ export function NostrComments({relays = []}) {
 
   return (
     <div className="comment-widget-container">
-      <div className='comment-input-section'>
-        <textarea className='textarea'
+      <div className="comment-input-section">
+        <textarea
+          className="textarea"
           value={comment}
           readOnly={!editable}
           onChange={e => setComment(e.target.value)}
           autoFocus
         />
-        <div className='comment-input-section-row2'>
-
-            <button className='info-button' onClick={infoEvent}>
-              <svg className='svg-info' version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-                  width="24px" height="24px" viewBox="0 0 416.979 416.979" xmlSpace="preserve">
-
-                  <g>
-                      <path d="M356.004,61.156c-81.37-81.47-213.377-81.551-294.848-0.182c-81.47,81.371-81.552,213.379-0.181,294.85
+        <div className="comment-input-section-row2">
+          <button className="info-button" onClick={infoEvent}>
+            <svg
+              className="svg-info"
+              version="1.1"
+              id="Capa_1"
+              xmlns="http://www.w3.org/2000/svg"
+              xmlnsXlink="http://www.w3.org/1999/xlink"
+              x="0px"
+              y="0px"
+              width="24px"
+              height="24px"
+              viewBox="0 0 416.979 416.979"
+              xmlSpace="preserve"
+            >
+              <g>
+                <path
+                  d="M356.004,61.156c-81.37-81.47-213.377-81.551-294.848-0.182c-81.47,81.371-81.552,213.379-0.181,294.85
                       c81.369,81.47,213.378,81.551,294.849,0.181C437.293,274.636,437.375,142.626,356.004,61.156z M237.6,340.786
                       c0,3.217-2.607,5.822-5.822,5.822h-46.576c-3.215,0-5.822-2.605-5.822-5.822V167.885c0-3.217,2.607-5.822,5.822-5.822h46.576
                       c3.215,0,5.822,2.604,5.822,5.822V340.786z M208.49,137.901c-18.618,0-33.766-15.146-33.766-33.765
-                      c0-18.617,15.147-33.766,33.766-33.766c18.619,0,33.766,15.148,33.766,33.766C242.256,122.755,227.107,137.901,208.49,137.901z"/>
-                  </g>
-
-              </svg>
-            </button>
-            <button className='post-button' onClick={publishEvent} disabled={!editable}>
-              { editable ? 'Post comment': 'Submitting' }
-            </button>
+                      c0-18.617,15.147-33.766,33.766-33.766c18.619,0,33.766,15.148,33.766,33.766C242.256,122.755,227.107,137.901,208.49,137.901z"
+                />
+              </g>
+            </svg>
+          </button>
+          <button
+            className="post-button"
+            onClick={publishEvent}
+            disabled={!editable}
+          >
+            {editable ? 'Post comment' : 'Submitting'}
+          </button>
         </div>
       </div>
       <div>
         {notices.map(n => (
-          <div className='notice-div' key={`${n.text}${n.time}`}>{n.text}</div>
+          <div className="notice-div" key={`${n.text}${n.time}`}>
+            {n.text}
+          </div>
         ))}
       </div>
       <div>
         {orderedEvents.map(evt => (
-          <div className='comment-card' key={evt.id}>
-            <div style={{ fontFamily: 'monospace', fontSize: '1.2em' }}>
-                <span className='comment-title'> from <b> {evt.pubkey.slice(0, 10)}…</b> </span>
-                <span style={{ fontFamily: 'arial', fontSize: '0.7em' }}>
-                    { dayjs(evt.created_at * 1000).from(new Date()) }
-                </span>
+          <div className="comment-card" key={evt.id}>
+            <div style={{fontFamily: 'monospace', fontSize: '1.2em'}}>
+              <span className="comment-title">
+                {' '}
+                from <b> {evt.pubkey.slice(0, 10)}…</b>{' '}
+              </span>
+              <span style={{fontFamily: 'arial', fontSize: '0.7em'}}>
+                {dayjs(evt.created_at * 1000).from(new Date())}
+              </span>
             </div>
-            <div style={{ marginTop: '8px' }}>{evt.content}</div>
+            <div style={{marginTop: '8px'}}>{evt.content}</div>
           </div>
         ))}
       </div>
 
-      {isInfoOpen && <Modal setIsOpen={setIsInfoOpen} title="Info">
-
-        <span>
-          Commenting as{' '}
-          <em style={{color: 'green'}}>
-          {nameFromMetadata(metadata[publicKey] || {pubkey: publicKey})}
-          </em>{' '}
-          using relays <br/>
-          {relays.map(url => (
-            <em key={url} style={{color: 'orange', paddingRight: '5px'}}>
-            {url} <br/>
-            </em>
-          ))}
-        </span>
-
-
-      </Modal>}
-
+      {isInfoOpen && (
+        <Modal setIsOpen={setIsInfoOpen} title="Info">
+          <span>
+            Commenting as{' '}
+            <em style={{color: 'green'}}>
+              {nameFromMetadata(metadata[publicKey] || {pubkey: publicKey})}
+            </em>{' '}
+            using relays <br />
+            {relays.map(url => (
+              <em key={url} style={{color: 'orange', paddingRight: '5px'}}>
+                {url} <br />
+              </em>
+            ))}
+          </span>
+        </Modal>
+      )}
     </div>
   )
 
   function showNotice(text) {
-    setNotices([
-      ...notices,
-      {time: Date.now(), text}
-    ]);
+    setNotices([...notices, {time: Date.now(), text}])
     setTimeout(() => {
-      setNotices(notices.filter(n => n.time - Date.now() > 5000));
+      setNotices(notices.filter(n => n.time - Date.now() > 5000))
     }, 5050)
   }
 
   async function infoEvent() {
-      setIsInfoOpen(true);
+    setIsInfoOpen(true)
   }
 
   async function publishEvent(ev) {
@@ -223,7 +238,7 @@ export function NostrComments({relays = []}) {
       content: comment
     }
 
-    console.log('event: ', event);
+    console.log('event: ', event)
 
     // we will sign this event using the nip07 extension if it was detected
     // otherwise it should just be signed automatically when we call .publish()
@@ -242,9 +257,9 @@ export function NostrComments({relays = []}) {
       setEditable(true)
     }, 8000)
 
-    console.log('publishing...');
+    console.log('publishing...')
     pool.publish(event, (status, relay) => {
-      console.log('publish status: ', status, relay);
+      console.log('publish status: ', status, relay)
       switch (status) {
         case -1:
           showNotice(`failed to send ${JSON.stringify(event)} to ${relay}`)
@@ -260,4 +275,3 @@ export function NostrComments({relays = []}) {
     })
   }
 }
-

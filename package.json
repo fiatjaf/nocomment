@@ -1,16 +1,18 @@
 {
-  "name": "nostr-comments-widget-react",
-  "version": "0.1.19",
-  "description": "This is an embeddable nostr comments widget that just works",
+  "name": "nocomment",
+  "version": "0.2.0",
+  "description": "This is an embeddable Nostr comments widget that just works",
   "main": "lib/index.js",
   "module": "lib/index.js",
   "scripts": {
-    "build": "node build.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "node build.js"
   },
-  "author": "fiatjaf, saiy2k",
+  "author": [
+    "fiatjaf",
+    "saiy2k"
+  ],
   "license": "MIT",
-  "repository": "https://github.com/saiy2k/nostr-comments-widget-react",
+  "repository": "https://github.com/fiatjaf/nocomment",
   "dependencies": {
     "dayjs": "^1.11.6",
     "events": "^3.3.0",
