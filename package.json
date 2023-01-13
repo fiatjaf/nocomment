@@ -5,7 +5,8 @@
   "main": "lib/index.js",
   "module": "lib/index.js",
   "scripts": {
-    "build": "node build.js"
+    "build": "node build.js",
+    "embeddable": "esbuild --bundle embeddable/embed.jsx --minify --outfile=embeddable/embed.js"
   },
   "author": [
     "fiatjaf",
