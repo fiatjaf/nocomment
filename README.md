@@ -9,7 +9,7 @@ Try it out at https://nocomment.netlify.app/ or add it to your own site
 
 ![Default styling](screenshot-1.png)
 
-2. Custom CSS variables for styling
+2. Custom CSS variables for styling:
 
 ```
 --nc-background: #003049;
@@ -22,14 +22,20 @@ Try it out at https://nocomment.netlify.app/ or add it to your own site
 
 ![Custom styling](screenshot-2.png)
 
-## Installation
+## Usage as an embeddable script
+
+Anywhere in your website you want to see the comment box, include
+
+```
+<script src="https://nocomment.netlify.app/embed.js" id="nocomment"></script>
+```
+
+## Usage as a React component
 
 1. `npm install nocomment`
-2. Don't create an account anywhere
-3. Don't configure a database
+2. Don't create an account anywhere.
+3. Don't configure a database.
 4. It just works. The URL is the identifier.
-
-## Usage
 
 ```
 import { NoComment } from 'nocomment'
