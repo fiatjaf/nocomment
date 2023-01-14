@@ -6,17 +6,14 @@ import {
   relayInit,
   getEventHash,
   signEvent,
-  nip05
+  nip05,
+  nip19
 } from 'nostr-tools'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 dayjs.extend(relativeTime)
 
-import {
-  normalizeURL,
-  nameFromMetadata,
-  insertEventIntoDescendingList
-} from './util'
+import {normalizeURL, getName, insertEventIntoDescendingList} from './util'
 import {
   Container,
   InputSection,
@@ -96,7 +93,7 @@ export function NoComment({url = normalizeURL(location.href), relays = []}) {
     }
   }, [baseEvent])
 
-  let selfName = nameFromMetadata(metadata[publicKey] || {pubkey: publicKey})
+  let selfName = getName(metadata, publicKey)
 
   return (
     <Container>
@@ -140,8 +137,14 @@ export function NoComment({url = normalizeURL(location.href), relays = []}) {
           <CommentCard key={evt.id}>
             <div style={{fontFamily: 'monospace', fontSize: '1.2em'}}>
               <CommentTitle>
-                {' '}
-                from <b> {evt.pubkey.slice(0, 10)}…</b>{' '}
+                from{' '}
+                <a
+                  target="_blank"
+                  href={'nostr:' + nip19.npubEncode(evt.pubkey)}
+                  style={{textDecoration: 'none', color: 'inherit'}}
+                >
+                  <b>{getName(metadata, evt.pubkey)}</b>
+                </a>{' '}
               </CommentTitle>
               <span style={{fontFamily: 'arial', fontSize: '0.7em'}}>
                 {dayjs(evt.created_at * 1000).from(new Date())}

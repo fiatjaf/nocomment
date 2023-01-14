@@ -18,24 +18,20 @@ export function normalizeURL(raw) {
   )
 }
 
-export function nameFromMetadata(event) {
-  try {
-    const data = JSON.parse(event.content)
-    if (data.nip05 && event.nip05verified) {
-      if (data.nip05.startsWith('_@')) return data.nip05.slice(2)
-      return data.nip05
+export function getName(metadata, pubkey) {
+  let meta = metadata[pubkey]
+  if (meta) {
+    if (meta.nip05 && meta.nip05verified) {
+      if (meta.nip05.startsWith('_@')) return meta.nip05.slice(2)
+      return meta.nip05
     }
-    if (data.name && data.name.length) return data.name
-
-    throw new Error('')
-  } catch (err) {
-    if (event.pubkey) {
-      let npub = nip19.npubEncode(event.pubkey)
-      return `${npub.slice(0, 6)}…${npub.slice(-3)}`
-    }
-
-    return '_'
+    if (meta.name && meta.name.length) return meta.name
+  } else if (pubkey) {
+    let npub = nip19.npubEncode(pubkey)
+    return `${npub.slice(0, 6)}…${npub.slice(-3)}`
   }
+
+  return '_'
 }
 
 export function insertEventIntoDescendingList(sortedArray, event) {
