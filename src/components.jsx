@@ -83,6 +83,33 @@ export const CommentTitle = styled.span`
   color: var(--nc-text-color-dark, #222);
 `
 
+export const CommentAuthorImage = styled.img`
+  height: 1em;
+  display: inline;
+  margin-right: 4px;
+`
+
+export const CommentAuthor = styled.a`
+  text-decoration: none;
+  color: inherit;
+  font-weight: bold;
+
+  &:hover {
+    text-decoration: underline;
+  }
+`
+
+export const CommentDate = styled.a`
+  text-decoration: none;
+  color: inherit;
+  font-family: sans-serif;
+  font-size: 0.7em;
+
+  &:hover {
+    text-decoration: underline;
+  }
+`
+
 export const Textarea = styled.textarea`
   background-color: var(--nc-text-background, white);
   color: var(--nc-text-color, black);

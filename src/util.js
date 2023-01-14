@@ -34,6 +34,15 @@ export function getName(metadata, pubkey) {
   return '_'
 }
 
+export function getImage(metadata, pubkey) {
+  let meta = metadata[pubkey]
+  if (meta) {
+    if (meta.picture && meta.picture.length) return meta.picture
+  }
+
+  return null
+}
+
 export function insertEventIntoDescendingList(sortedArray, event) {
   let start = 0
   let end = sortedArray.length - 1

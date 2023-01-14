@@ -13,7 +13,12 @@ import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 dayjs.extend(relativeTime)
 
-import {normalizeURL, getName, insertEventIntoDescendingList} from './util'
+import {
+  normalizeURL,
+  getName,
+  getImage,
+  insertEventIntoDescendingList
+} from './util'
 import {
   Container,
   InputSection,
@@ -25,6 +30,9 @@ import {
   Textarea,
   CommentCard,
   CommentTitle,
+  CommentAuthor,
+  CommentAuthorImage,
+  CommentDate,
   Info
 } from './components'
 
@@ -138,17 +146,22 @@ export function NoComment({url = normalizeURL(location.href), relays = []}) {
             <div style={{fontFamily: 'monospace', fontSize: '1.2em'}}>
               <CommentTitle>
                 from{' '}
-                <a
+                <CommentAuthor
                   target="_blank"
                   href={'nostr:' + nip19.npubEncode(evt.pubkey)}
-                  style={{textDecoration: 'none', color: 'inherit'}}
                 >
-                  <b>{getName(metadata, evt.pubkey)}</b>
-                </a>{' '}
+                  {getImage(metadata, evt.pubkey) && (
+                    <CommentAuthorImage src={getImage(metadata, evt.pubkey)} />
+                  )}
+                  {getName(metadata, evt.pubkey)}
+                </CommentAuthor>{' '}
               </CommentTitle>
-              <span style={{fontFamily: 'arial', fontSize: '0.7em'}}>
+              <CommentDate
+                target="_blank"
+                href={'nostr:' + nip19.neventEncode({id: evt.id, relays})}
+              >
                 {dayjs(evt.created_at * 1000).from(new Date())}
-              </span>
+              </CommentDate>
             </div>
             <div style={{marginTop: '8px'}}>{evt.content}</div>
           </CommentCard>
