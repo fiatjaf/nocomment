@@ -1,3 +1,5 @@
+import {nip19} from 'nostr-tools'
+
 export function normalizeURL(raw) {
   let url = new URL(raw)
   return (
@@ -27,8 +29,10 @@ export function nameFromMetadata(event) {
 
     throw new Error('')
   } catch (err) {
-    if (event.pubkey)
-      return `${event.pubkey.slice(0, 4)}…${event.pubkey.slice(-3)}`
+    if (event.pubkey) {
+      let npub = nip19.npubEncode(event.pubkey)
+      return `${npub.slice(0, 6)}…${npub.slice(-3)}`
+    }
 
     return '_'
   }

@@ -63,7 +63,12 @@ export const PostButton = styled.button`
 `
 
 export const Notice = styled.div`
-  color: var(--nc-text-color, #888);
+  color: var(--nc-primary-contrast, white);
+  padding: 4px;
+  text-align: center;
+  background: var(--nc-primary-color, #0d6efd);
+  color: white;
+  margin: 8px;
 `
 
 export const CommentCard = styled.div`
@@ -79,12 +84,23 @@ export const CommentTitle = styled.span`
 `
 
 export const Textarea = styled.textarea`
-  background-color: var(--nc-background, white);
+  background-color: var(--nc-text-background, white);
   color: var(--nc-text-color, black);
   border: none;
   outline: none;
   width: 100%;
-  padding: 2px;
+  padding: 5px 6px;
   margin-bottom: 12px;
-  height: 64px;
+  height: 96px;
+
+  &:focus {
+    border: 0;
+    box-shadow: none;
+  }
+`
+
+export const Info = styled.div`
+  padding: 8px;
+  margin-top: 4px;
+  width: 100%;
 `
