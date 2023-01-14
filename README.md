@@ -33,7 +33,6 @@ Try it out at https://nocomment.netlify.app/ or add it to your own site
 
 ```
 import { NoComment } from 'nocomment'
-import 'nocomment/lib/index.css'
 
 function App() {
   return (
