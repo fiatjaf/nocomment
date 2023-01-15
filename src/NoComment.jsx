@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef} from 'react'
+import React, {useState, useEffect, useRef, useMemo} from 'react'
 import {useDebounce} from 'use-debounce'
 import {
   generatePrivateKey,
@@ -6,19 +6,10 @@ import {
   relayInit,
   getEventHash,
   signEvent,
-  nip05,
-  nip19
+  nip05
 } from 'nostr-tools'
-import dayjs from 'dayjs'
-import relativeTime from 'dayjs/plugin/relativeTime'
-dayjs.extend(relativeTime)
 
-import {
-  normalizeURL,
-  getName,
-  getImage,
-  insertEventIntoDescendingList
-} from './util'
+import {normalizeURL, insertEventIntoDescendingList, getName} from './util'
 import {
   Container,
   InputSection,
@@ -28,13 +19,9 @@ import {
   Notice,
   SvgInfo,
   Textarea,
-  CommentCard,
-  CommentTitle,
-  CommentAuthor,
-  CommentAuthorImage,
-  CommentDate,
   Info
 } from './components'
+import Thread, {computeThreads} from './Thread'
 
 export function NoComment({
   url = normalizeURL(location.href),
@@ -47,13 +34,15 @@ export function NoComment({
   const [comment, setComment] = useState('')
   const [privateKey, setPrivateKey] = useState(null)
   const [publicKey, setPublicKey] = useState(null)
-  const [events, setEvents] = useState([])
+  const [eventsImmediate, setEvents] = useState([])
   const [editable, setEditable] = useState(true)
   const [metadata, setMetadata] = useState({})
   const baseEventRelay = useRef('')
   const metadataFetching = useRef({})
   const connections = useRef(relays.map(url => relayInit(url)))
   const [baseEvent] = useDebounce(baseEventImmediate, 1000)
+  const [events] = useDebounce(eventsImmediate, 1000, {leading: true})
+  const threads = useMemo(() => computeThreads(events), [events])
 
   useEffect(() => {
     connections.current.forEach(async conn => {
@@ -181,30 +170,8 @@ export function NoComment({
       ))}
 
       <div>
-        {events.map(evt => (
-          <CommentCard key={evt.id}>
-            <div style={{fontFamily: 'monospace', fontSize: '1.2em'}}>
-              <CommentTitle>
-                from{' '}
-                <CommentAuthor
-                  target="_blank"
-                  href={'nostr:' + nip19.npubEncode(evt.pubkey)}
-                >
-                  {getImage(metadata, evt.pubkey) && (
-                    <CommentAuthorImage src={getImage(metadata, evt.pubkey)} />
-                  )}
-                  {getName(metadata, evt.pubkey)}
-                </CommentAuthor>{' '}
-              </CommentTitle>
-              <CommentDate
-                target="_blank"
-                href={'nostr:' + nip19.neventEncode({id: evt.id, relays})}
-              >
-                {dayjs(evt.created_at * 1000).from(new Date())}
-              </CommentDate>
-            </div>
-            <div style={{marginTop: '8px'}}>{evt.content}</div>
-          </CommentCard>
+        {threads.map(thread => (
+          <Thread thread={thread} metadata={metadata} relays={relays} />
         ))}
       </div>
     </Container>

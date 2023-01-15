@@ -1,6 +1,6 @@
 {
   "name": "nocomment",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "This is an embeddable Nostr comments widget that just works",
   "main": "lib/index.js",
   "module": "lib/index.js",

@@ -75,8 +75,12 @@ export const CommentCard = styled.div`
   padding: 0px;
   margin: 0px;
   padding-top: 12px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid #eee;
+  white-space: pre-wrap;
+
+  &:not(:nth-last-of-type(1)) {
+    padding-bottom: 12px;
+    border-bottom: 1px solid #eee;
+  }
 `
 
 export const CommentTitle = styled.span`
@@ -90,6 +94,8 @@ export const CommentAuthorImage = styled.img`
 `
 
 export const CommentAuthor = styled.a`
+  font-size: 1.2em;
+  font-family: monospace;
   text-decoration: none;
   color: inherit;
   font-weight: bold;
@@ -108,6 +114,12 @@ export const CommentDate = styled.a`
   &:hover {
     text-decoration: underline;
   }
+`
+
+export const CommentContent = styled.div`
+  margin-top: 8px;
+  max-height: 306px;
+  overflow-y: auto;
 `
 
 export const Textarea = styled.textarea`
