@@ -30,6 +30,11 @@ Anywhere in your website you want to see the comment box, include
 <script src="https://nocomment.netlify.app/embed.js" id="nocomment"></script>
 ```
 
+You can pass special attributes to that `<script>` tag, such as
+
+- `data-relays='["wss://my.custom.relay", "..."]'`, a JSON list of relay URLs to use instead of the default ones;
+- `data-skip="/"`, a path of your website to skip rendering the widgets in. The default is `"/"`.
+
 ## Usage as a React component
 
 1. `npm install nocomment`

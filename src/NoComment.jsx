@@ -36,7 +36,11 @@ import {
   Info
 } from './components'
 
-export function NoComment({url = normalizeURL(location.href), relays = []}) {
+export function NoComment({
+  url = normalizeURL(location.href),
+  relays = [],
+  skip
+}) {
   const [notices, setNotices] = useState([])
   const [baseEventImmediate, setBaseEvent] = useState(null)
   const [isInfoOpen, setIsInfoOpen] = useState(false)
@@ -49,7 +53,6 @@ export function NoComment({url = normalizeURL(location.href), relays = []}) {
   const baseEventRelay = useRef('')
   const metadataFetching = useRef({})
   const connections = useRef(relays.map(url => relayInit(url)))
-
   const [baseEvent] = useDebounce(baseEventImmediate, 1000)
 
   useEffect(() => {
@@ -100,6 +103,8 @@ export function NoComment({url = normalizeURL(location.href), relays = []}) {
       })
     }
   }, [baseEvent])
+
+  if (skip && skip !== '' && skip === location.pathname) return
 
   let selfName = getName(metadata, publicKey)
 
