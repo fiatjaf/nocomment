@@ -36,7 +36,7 @@ You can pass special attributes to that `<script>` tag, such as
 
 ## Usage as a React component
 
-1. `npm install nocomment`
+1. `yarn add react-nocomment`
 2. Don't create an account anywhere.
 3. Don't configure a database.
 4. It just works. The URL is the identifier.
