@@ -1,7 +1,6 @@
 # nocomment
 
-This is an embeddable comments widget that "just works".
-Try it out at https://nocomment.netlify.app/ or add it to your own site
+A Nostr-powered embeddable website comments widget that _just works_.
 
 ## Screenshots
 

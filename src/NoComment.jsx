@@ -137,14 +137,49 @@ export function NoComment({
             onClick={publicKey ? publishEvent : establishNostrKey}
             disabled={!editable}
           >
-            {publicKey
-              ? editable
-                ? 'Post comment'
-                : 'Submitting'
-              : 'Start Nostr'}
+            {publicKey ? (editable ? 'Post comment' : 'Submitting') : 'Get Key'}
           </PostButton>
         </InputSectionRow2>
       </InputSection>
+
+      {isInfoOpen && (
+        <Info>
+          Commenting{' '}
+          {selfName !== '_' && (
+            <>
+              as <em style={{color: 'green'}}>{selfName}</em>
+            </>
+          )}{' '}
+          using relays{' '}
+          <ul>
+            {relays.map(url => (
+              <li key={url} style={{color: 'orange', paddingRight: '5px'}}>
+                {url}
+              </li>
+            ))}
+          </ul>
+          <p>
+            Powered by{' '}
+            <a
+              style={{
+                marginTop: '4px',
+                fontWeight: 'bold',
+                color: 'var(--nc-primary-color)'
+              }}
+              target="_blank"
+              href="https://github.com/fiatjaf/nocomment"
+            >
+              NoComment
+            </a>
+            .
+          </p>
+        </Info>
+      )}
+
+      {notices.map(notice => (
+        <Notice key={notice.text}>{notice.text}</Notice>
+      ))}
+
       <div>
         {events.map(evt => (
           <CommentCard key={evt.id}>
@@ -172,29 +207,6 @@ export function NoComment({
           </CommentCard>
         ))}
       </div>
-
-      {isInfoOpen && (
-        <Info>
-          Commenting{' '}
-          {selfName !== '_' && (
-            <>
-              as <em style={{color: 'green'}}>{selfName}</em>
-            </>
-          )}{' '}
-          using relays{' '}
-          <ul>
-            {relays.map(url => (
-              <li key={url} style={{color: 'orange', paddingRight: '5px'}}>
-                {url}
-              </li>
-            ))}
-          </ul>
-        </Info>
-      )}
-
-      {notices.map(notice => (
-        <Notice key={notice.text}>{notice.text}</Notice>
-      ))}
     </Container>
   )
 
