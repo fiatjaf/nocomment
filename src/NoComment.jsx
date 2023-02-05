@@ -104,7 +104,6 @@ export function NoComment({
           value={comment}
           readOnly={!editable}
           onChange={e => setComment(e.target.value)}
-          autoFocus
         />
         <InputSectionRow2>
           <InfoButton onClick={handleSettingsClick}>
