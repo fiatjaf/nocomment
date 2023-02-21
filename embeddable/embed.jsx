@@ -14,10 +14,11 @@ const relays = script.dataset.relays
       'wss://relay.damus.io'
     ]
 const skip = script.dataset.skip || '/'
+const owner = script.dataset.owner || ''
 
 const container = document.createElement('div')
 container.style.width = '100%'
 script.parentNode.insertBefore(container, script)
 
 const root = createRoot(container)
-root.render(<NoComment skip={skip} relays={relays} />)
+root.render(<NoComment skip={skip} relays={relays} owner={owner} />)
