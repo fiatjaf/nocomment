@@ -16,6 +16,7 @@ You can pass special attributes to that `<script>` tag, such as
 
 - `data-relays='["wss://my.custom.relay", "..."]'`, a JSON list of relay URLs to use instead of the default ones;
 - `data-skip="/"`, a path of your website to skip rendering the widgets in. The default is `"/"`.
+- `data-owner='hex public key'`, a string with the post owner's public key in hex format.
 
 Custom CSS variables for styling:
 

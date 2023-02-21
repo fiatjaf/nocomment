@@ -26,6 +26,7 @@ import Thread, {computeThreads} from './Thread'
 export function NoComment({
   url = normalizeURL(location.href),
   relays = [],
+  owner,
   skip
 }) {
   const [notices, setNotices] = useState([])
@@ -254,12 +255,18 @@ export function NoComment({
     if (!root) {
       // create base event right here
       let sk = generatePrivateKey()
+      let tags = [
+        ['r', url],
+      ];
+      if (owner !== '') {
+        tags.push(['p', owner])
+      }
       root = {
         pubkey: getPublicKey(sk),
         created_at: Math.round(Date.now() / 1000),
         kind: 1,
-        tags: [['r', url]],
-        content: `Comments on ${url} ↴`
+        tags: tags,
+        content: `Comments on ${url}` + (owner !== '' ? ` by #[1]` : '') + ` ↴`
       }
       root.id = getEventHash(root)
       root.sig = signEvent(root, sk)
