@@ -27,10 +27,12 @@ export function NoComment({
   url = normalizeURL(location.href),
   relays = [],
   owner,
-  skip
+  skip,
+  customBaseEventId,
+  customBaseEventRelay
 }) {
   const [notices, setNotices] = useState([])
-  const [baseEventImmediate, setBaseEvent] = useState(null)
+  const [baseEventIdImmediate, setBaseEventId] = useState(null)
   const [isInfoOpen, setIsInfoOpen] = useState(false)
   const [comment, setComment] = useState('')
   const [privateKey, setPrivateKey] = useState(null)
@@ -38,14 +40,18 @@ export function NoComment({
   const [eventsImmediate, setEvents] = useState([])
   const [editable, setEditable] = useState(true)
   const [metadata, setMetadata] = useState({})
-  const baseEventRelay = useRef('')
+  const baseEventRelay = useRef(customBaseEventRelay)
   const metadataFetching = useRef({})
   const connections = useRef(relays.map(url => relayInit(url)))
-  const [baseEvent] = useDebounce(baseEventImmediate, 1000)
+  const [baseEventId] = useDebounce(baseEventIdImmediate, 1000)
   const [events] = useDebounce(eventsImmediate, 1000, {leading: true})
   const threads = useMemo(() => computeThreads(events), [events])
 
   useEffect(() => {
+    // try to get specified base event
+    if (baseEventId) {
+    }
+
     connections.current.forEach(async conn => {
       await conn.connect()
 
@@ -57,10 +63,10 @@ export function NoComment({
       ])
       sub.on('event', event => {
         if (
-          !baseEventImmediate ||
-          baseEventImmediate.created_at < event.created_at
+          !baseEventIdImmediate ||
+          baseEventIdImmediate.created_at < event.created_at
         ) {
-          setBaseEvent(event)
+          setBaseEventId(event)
           baseEventRelay.current = conn.url
         }
       })
@@ -71,12 +77,12 @@ export function NoComment({
   }, [])
 
   useEffect(() => {
-    if (!baseEvent) return
+    if (baseEventId) return
 
     let subs = connections.current.map(conn => {
       let sub = conn.sub([
         {
-          '#e': [baseEvent.id],
+          '#e': [baseEventId],
           kinds: [1]
         }
       ])
@@ -92,7 +98,7 @@ export function NoComment({
         sub.unsub()
       })
     }
-  }, [baseEvent])
+  }, [baseEventId])
 
   if (skip && skip !== '' && skip === location.pathname) return
 
@@ -251,17 +257,15 @@ export function NoComment({
   async function publishEvent() {
     setEditable(false)
 
-    let root = baseEvent
-    if (!root) {
+    let rootId = baseEventId
+    if (!rootId) {
       // create base event right here
       let sk = generatePrivateKey()
-      let tags = [
-        ['r', url],
-      ];
+      let tags = [['r', url]]
       if (owner !== '') {
         tags.push(['p', owner])
       }
-      root = {
+      let root = {
         pubkey: getPublicKey(sk),
         created_at: Math.round(Date.now() / 1000),
         kind: 1,
@@ -270,20 +274,22 @@ export function NoComment({
       }
       root.id = getEventHash(root)
       root.sig = signEvent(root, sk)
-      setBaseEvent(root)
+      setBaseEventId(root)
+      rootId = root.id
 
       connections.current.forEach(conn => {
         conn.publish(root)
+        baseEventRelay.current = conn.url
       })
     }
 
-    console.log('base event: ', root)
+    console.log('base event: ', rootId)
 
     let event = {
       pubkey: publicKey,
       created_at: Math.round(Date.now() / 1000),
       kind: 1,
-      tags: [['e', root.id, baseEventRelay.current || relays[0], 'root']],
+      tags: [['e', rootId, baseEventRelay.current || '', 'root']],
       content: comment
     }
 

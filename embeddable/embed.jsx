@@ -10,15 +10,27 @@ const relays = script.dataset.relays
       'wss://nostr.zebedee.cloud',
       'wss://nostr.fmt.wiz.biz',
       'wss://nostr-pub.wellorder.net',
-      'wss://nostr-relay.untethr.me',
+      'wss://relay.nostr.bg',
+      'wss://nos.lol',
+      'wss://no.str.cr',
       'wss://relay.damus.io'
     ]
 const skip = script.dataset.skip || '/'
 const owner = script.dataset.owner || ''
+const customBaseEventId = script.dataset.customBaseEventId
+const customBaseEventRelay = script.dataset.customBaseEventRelay
 
 const container = document.createElement('div')
 container.style.width = '100%'
 script.parentNode.insertBefore(container, script)
 
 const root = createRoot(container)
-root.render(<NoComment skip={skip} relays={relays} owner={owner} />)
+root.render(
+  <NoComment
+    customBaseEventId={customBaseEventId}
+    customBaseEventRelay={customBaseEventRelay}
+    skip={skip}
+    relays={relays}
+    owner={owner}
+  />
+)
