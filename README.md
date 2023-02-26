@@ -15,8 +15,7 @@ Anywhere in your website you want to see the comment box, include
 You can pass special attributes to that `<script>` tag, such as
 
 - `data-relays='["wss://my.custom.relay", "..."]'`, a JSON list of relay URLs to use instead of the default ones.
-- `data-custom-base-event-id="4ade133fcb93463407af97a5e5ee64fa883d107ef9e558472c4eb9aaaefa4588"`, an event id as hex -- this will prevent automatic creation of a base event and just use the one you've specified.
-- `data-custom-base-event-relay="wss://nos.lol"`, a relay URL to be used in the relay hints of comments, in case you passed the custom base event id above.
+- `data-custom-base="reference"`, an event id in hex, `note1` or `nevent1` format, or a `naddr` reference to a [nip33](https://nips.be/33) entity. This will prevent the creation of generic base events.
 - `data-skip="/"`, a path of your website to skip rendering the widgets in. The default is `"/"`.
 - `data-owner="77778888cb93463407af97a5e5ee64fa883d107ef9e558472c4eb9aaaefa459d"`, a string with the post owner's public key in hex format.
 

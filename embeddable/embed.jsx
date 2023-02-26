@@ -17,8 +17,7 @@ const relays = script.dataset.relays
     ]
 const skip = script.dataset.skip || '/'
 const owner = script.dataset.owner || ''
-const customBaseEventId = script.dataset.customBaseEventId
-const customBaseEventRelay = script.dataset.customBaseEventRelay
+const customBase = script.dataset.customBase
 
 const container = document.createElement('div')
 container.style.width = '100%'
@@ -27,8 +26,7 @@ script.parentNode.insertBefore(container, script)
 const root = createRoot(container)
 root.render(
   <NoComment
-    customBaseEventId={customBaseEventId}
-    customBaseEventRelay={customBaseEventRelay}
+    customBase={customBase}
     skip={skip}
     relays={relays}
     owner={owner}

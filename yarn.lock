@@ -1158,10 +1158,10 @@ natural-compare@^1.4.0:
   resolved "https://registry.yarnpkg.com/natural-compare/-/natural-compare-1.4.0.tgz#4abebfeed7541f2c27acfb29bdbbd15c8d5ba4f7"
   integrity sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==
 
-nostr-tools@^1.6.3:
-  version "1.6.3"
-  resolved "https://registry.yarnpkg.com/nostr-tools/-/nostr-tools-1.6.3.tgz#f2e0692ce921a5cac8e75c681b5d2d9e3216cb6e"
-  integrity sha512-X6LlVRWhNbYlVdmQ2ZY8l9IRQ5BFH1rpA/B9F2iI83aYY8u3lSApICzRNUMmpEqS16ayvvpPAna2HHjs+8d/ZQ==
+nostr-tools@^1.7.0:
+  version "1.7.0"
+  resolved "https://registry.yarnpkg.com/nostr-tools/-/nostr-tools-1.7.0.tgz#66788334f9055e09f582e71b87408fa5db48ef34"
+  integrity sha512-oG1Ac5UkKcClxfXaHx9kobbNKtRoRs8FrijN8XnHpPp3lRGGkN/Mi3XjPEl8LyuBulshToksLBnnYcqUrxEllA==
   dependencies:
     "@noble/hashes" "1.0.0"
     "@noble/secp256k1" "^1.7.1"

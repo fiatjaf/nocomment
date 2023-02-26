@@ -3,10 +3,11 @@ import {useDebounce} from 'use-debounce'
 import {
   generatePrivateKey,
   getPublicKey,
-  relayInit,
+  SimplePool,
   getEventHash,
   signEvent,
-  nip05
+  nip05,
+  nip19
 } from 'nostr-tools'
 
 import {normalizeURL, insertEventIntoDescendingList, getName} from './util'
@@ -28,11 +29,40 @@ export function NoComment({
   relays = [],
   owner,
   skip,
-  customBaseEventId,
-  customBaseEventRelay
+  customBase
 }) {
+  let customBaseTag
+  if (customBase) {
+    try {
+      let {type, data} = nip19.decode(customBase)
+      switch (type) {
+        case 'note':
+          customBaseTag = {filter: {'#e': [data]}, reference: ['e', data]}
+          break
+        case 'nevent':
+          customBaseTag = {
+            filter: {'#e': [data.id]},
+            reference: ['e', data.id, data.relays[0]]
+          }
+          break
+        case 'naddr':
+          const {kind, pubkey, identifier} = data
+          customBaseTag = {
+            filter: {'#a': [`${kind}:${pubkey}${identifier}`]},
+            reference: ['a', `${kind}:${pubkey}${identifier}`, data.relays[0]]
+          }
+          break
+      }
+    } catch (err) {
+      customBaseTag = {
+        filter: {'#e': [customBase]},
+        reference: ['e', customBase]
+      }
+    }
+  }
+
   const [notices, setNotices] = useState([])
-  const [baseEventIdImmediate, setBaseEventId] = useState(customBaseEventId)
+  const [baseTagImmediate, setBaseTag] = useState(customBaseTag)
   const [isInfoOpen, setIsInfoOpen] = useState(false)
   const [comment, setComment] = useState('')
   const [privateKey, setPrivateKey] = useState(null)
@@ -40,63 +70,51 @@ export function NoComment({
   const [eventsImmediate, setEvents] = useState([])
   const [editable, setEditable] = useState(true)
   const [metadata, setMetadata] = useState({})
-  const baseEventRelay = useRef(customBaseEventRelay)
   const metadataFetching = useRef({})
-  const connections = useRef(relays.map(url => relayInit(url)))
-  const [baseEventId] = useDebounce(baseEventIdImmediate, 1000)
+  const pool = useRef(new SimplePool())
+  const [baseTag] = useDebounce(baseTagImmediate, 1000)
   const [events] = useDebounce(eventsImmediate, 1000, {leading: true})
   const threads = useMemo(() => computeThreads(events), [events])
 
   useEffect(() => {
-    if (baseEventId) return
+    if (baseTag) return
 
-    connections.current.forEach(async conn => {
-      await conn.connect()
-
-      const sub = conn.sub([
+    // search for the base event based on the #r tag (url)
+    pool.current
+      .list(relays, [
         {
           '#r': [url],
           kinds: [1]
         }
       ])
-      sub.on('event', event => {
-        if (
-          !baseEventIdImmediate ||
-          baseEventIdImmediate.created_at < event.created_at
-        ) {
-          setBaseEventId(event.id)
-          baseEventRelay.current = conn.url
-        }
+      .then(events => {
+        setBaseTag({
+          filter: {'#e': [events.slice(0, 3).map(event => event.id)]},
+          reference: ['e', events[0].id, pool.current.seenOn(events[0].id)[0]]
+        })
       })
-      sub.on('eose', () => {
-        sub.unsub()
-      })
-    })
   }, [])
 
   useEffect(() => {
-    if (!baseEventId) return
+    if (!baseTag) return
 
-    let subs = connections.current.map(conn => {
-      let sub = conn.sub([
-        {
-          '#e': [baseEventId],
-          kinds: [1]
-        }
-      ])
-      sub.on('event', event => {
-        setEvents(events => insertEventIntoDescendingList(events, event))
-        fetchMetadata(event.pubkey)
-      })
-      return sub
+    // query for comments
+    let sub = pool.current.sub(relays, [
+      {
+        ...baseTag.filter,
+        kinds: [1]
+      }
+    ])
+
+    sub.on('event', event => {
+      setEvents(events => insertEventIntoDescendingList(events, event))
+      fetchMetadata(event.pubkey)
     })
 
     return () => {
-      subs.forEach(sub => {
-        sub.unsub()
-      })
+      sub.unsub()
     }
-  }, [baseEventId])
+  }, [baseTag])
 
   if (skip && skip !== '' && skip === location.pathname) return
 
@@ -206,33 +224,31 @@ export function NoComment({
     metadataFetching.current[pubkey] = true
     let done = 0
 
-    connections.current.forEach(conn => {
-      let sub = conn.sub([{kinds: [0], authors: [pubkey]}])
-      done++
-      sub.on('event', event => {
-        try {
-          if (
-            !metadata[pubkey] ||
-            metadata[pubkey].created_at < event.created_at
-          ) {
-            setMetadata(curr => ({
-              ...curr,
-              [pubkey]: {
-                ...JSON.parse(event.content),
-                created_at: event.created_at
-              }
-            }))
-          }
-        } catch (err) {
-          /***/
+    let sub = pool.current.sub(relays, [{kinds: [0], authors: [pubkey]}])
+    done++
+    sub.on('event', event => {
+      try {
+        if (
+          !metadata[pubkey] ||
+          metadata[pubkey].created_at < event.created_at
+        ) {
+          setMetadata(curr => ({
+            ...curr,
+            [pubkey]: {
+              ...JSON.parse(event.content),
+              created_at: event.created_at
+            }
+          }))
         }
-      })
-      sub.on('eose', () => {
-        sub.unsub()
-        done--
+      } catch (err) {
+        /***/
+      }
+    })
+    sub.on('eose', () => {
+      sub.unsub()
+      done--
 
-        if (done === 0) fetchNIP05(pubkey, metadata[pubkey])
-      })
+      if (done === 0) fetchNIP05(pubkey, metadata[pubkey])
     })
   }
 
@@ -255,8 +271,8 @@ export function NoComment({
   async function publishEvent() {
     setEditable(false)
 
-    let rootId = baseEventId
-    if (!rootId) {
+    let rootReference = baseTag?.reference
+    if (!rootReference) {
       // create base event right here
       let sk = generatePrivateKey()
       let tags = [['r', url]]
@@ -272,22 +288,23 @@ export function NoComment({
       }
       root.id = getEventHash(root)
       root.sig = signEvent(root, sk)
-      setBaseEventId(root.id)
-      rootId = root.id
+      rootReference = ['e', root.id]
+      setBaseTag({filter: {'#e': [root.id]}, reference: rootReference})
 
-      connections.current.forEach(conn => {
-        conn.publish(root)
-        baseEventRelay.current = conn.url
-      })
+      pool.current.publish(relays, root)
+      setBaseTag(prev => ({
+        filter: {'#e': [root.id]},
+        reference: [...rootReference, pool.current.seenOn(root.id)[0]]
+      }))
     }
 
-    console.log('base event: ', rootId)
+    console.log('base: ', rootReference)
 
     let event = {
       pubkey: publicKey,
       created_at: Math.round(Date.now() / 1000),
       kind: 1,
-      tags: [['e', rootId, baseEventRelay.current || '', 'root']],
+      tags: [rootReference],
       content: comment
     }
 
@@ -318,14 +335,12 @@ export function NoComment({
 
     console.log('publishing...')
 
-    connections.current.forEach(conn => {
-      let pub = conn.publish(event)
-      pub.on('ok', () => {
-        clearTimeout(publishTimeout)
-        showNotice(`event ${event.id.slice(0, 5)}… published to ${conn.url}.`)
-        setComment('')
-        setEditable(true)
-      })
+    let pub = pool.current.publish(relays, event)
+    pub.on('ok', relay => {
+      clearTimeout(publishTimeout)
+      showNotice(`event ${event.id.slice(0, 5)}… published to ${relay.url}.`)
+      setComment('')
+      setEditable(true)
     })
   }
 
