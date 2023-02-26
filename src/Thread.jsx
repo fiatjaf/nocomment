@@ -64,6 +64,9 @@ export function computeThreads(events) {
   for (let i = threadableEvents.length - 1; i >= 0; i--) {
     let event = threadableEvents[i]
     let reply = getImmediateReply(event.tags)
+
+    // if this is not a reply to another comment we assume it is a reply
+    // to the "root"/base -- i.e. a top-level comment
     if (!reply) {
       threads.unshift(event)
       continue
@@ -91,6 +94,7 @@ export function computeThreads(events) {
           return tag[1]
         }
 
+        // use the last "e" tag if none are marked as "reply"
         if (curr === null) curr = tag[1]
       }
     }
