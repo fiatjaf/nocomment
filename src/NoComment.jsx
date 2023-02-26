@@ -32,7 +32,7 @@ export function NoComment({
   customBaseEventRelay
 }) {
   const [notices, setNotices] = useState([])
-  const [baseEventIdImmediate, setBaseEventId] = useState(null)
+  const [baseEventIdImmediate, setBaseEventId] = useState(customBaseEventId)
   const [isInfoOpen, setIsInfoOpen] = useState(false)
   const [comment, setComment] = useState('')
   const [privateKey, setPrivateKey] = useState(null)
@@ -48,9 +48,7 @@ export function NoComment({
   const threads = useMemo(() => computeThreads(events), [events])
 
   useEffect(() => {
-    // try to get specified base event
-    if (baseEventId) {
-    }
+    if (baseEventId) return
 
     connections.current.forEach(async conn => {
       await conn.connect()
@@ -77,7 +75,7 @@ export function NoComment({
   }, [])
 
   useEffect(() => {
-    if (baseEventId) return
+    if (!baseEventId) return
 
     let subs = connections.current.map(conn => {
       let sub = conn.sub([
