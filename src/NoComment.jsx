@@ -37,26 +37,34 @@ export function NoComment({
       let {type, data} = nip19.decode(customBase)
       switch (type) {
         case 'note':
-          customBaseTag = {filter: {'#e': [data]}, reference: ['e', data]}
+          customBaseTag = {
+            filter: {'#e': [data]},
+            reference: ['e', data, '', 'root']
+          }
           break
         case 'nevent':
           customBaseTag = {
             filter: {'#e': [data.id]},
-            reference: ['e', data.id, data.relays[0]]
+            reference: ['e', data.id, data.relays[0] || '', 'root']
           }
           break
         case 'naddr':
           const {kind, pubkey, identifier} = data
           customBaseTag = {
             filter: {'#a': [`${kind}:${pubkey}${identifier}`]},
-            reference: ['a', `${kind}:${pubkey}${identifier}`, data.relays[0]]
+            reference: [
+              'a',
+              `${kind}:${pubkey}${identifier}`,
+              data.relays[0] || '',
+              'root'
+            ]
           }
           break
       }
     } catch (err) {
       customBaseTag = {
         filter: {'#e': [customBase]},
-        reference: ['e', customBase]
+        reference: ['e', customBase, '', 'root']
       }
     }
   }
@@ -297,14 +305,18 @@ export function NoComment({
       }
       root.id = getEventHash(root)
       root.sig = signEvent(root, sk)
-      rootReference = ['e', root.id]
+      rootReference = ['e', root.id, '', 'root']
       setBaseTag({filter: {'#e': [root.id]}, reference: rootReference})
 
       pool.current.publish(relays, root)
-      setBaseTag(prev => ({
-        filter: {'#e': [root.id]},
-        reference: [...rootReference, pool.current.seenOn(root.id)[0]]
-      }))
+      setBaseTag(prev => {
+        rootReference[2] = pool.current.seenOn(root.id)[0]
+
+        return {
+          filter: {'#e': [root.id]},
+          reference: rootReference
+        }
+      })
     }
 
     console.log('base: ', rootReference)

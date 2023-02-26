@@ -81,9 +81,10 @@ export function computeThreads(events) {
     for (let t = tags.length - 1; t >= 0; t--) {
       let tag = tags[t]
       if (
-        tag[0] === 'e' &&
+        (tag[0] === 'a' || tag[0] === 'e') &&
         typeof tag[1] === 'string' &&
-        // can't be root in this context because the root is always the original website event
+        // can't be root in this context because the root
+        //   is always the original website event
         tag[3] !== 'root'
       ) {
         if (tag[3] === 'reply') {
