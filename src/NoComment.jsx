@@ -193,7 +193,12 @@ export function NoComment({
 
       <div>
         {threads.map(thread => (
-          <Thread thread={thread} metadata={metadata} relays={relays} />
+          <Thread
+            key={thread.id}
+            thread={thread}
+            metadata={metadata}
+            relays={relays}
+          />
         ))}
       </div>
     </Container>
@@ -338,7 +343,7 @@ export function NoComment({
     let pub = pool.current.publish(relays, event)
     pub.on('ok', relay => {
       clearTimeout(publishTimeout)
-      showNotice(`event ${event.id.slice(0, 5)}… published to ${relay.url}.`)
+      showNotice(`event ${event.id.slice(0, 5)}… published to ${relay}.`)
       setComment('')
       setEditable(true)
     })
