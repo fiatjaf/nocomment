@@ -64,7 +64,7 @@ export function NoComment({
           !baseEventIdImmediate ||
           baseEventIdImmediate.created_at < event.created_at
         ) {
-          setBaseEventId(event)
+          setBaseEventId(event.id)
           baseEventRelay.current = conn.url
         }
       })
@@ -272,7 +272,7 @@ export function NoComment({
       }
       root.id = getEventHash(root)
       root.sig = signEvent(root, sk)
-      setBaseEventId(root)
+      setBaseEventId(root.id)
       rootId = root.id
 
       connections.current.forEach(conn => {
