@@ -106,9 +106,11 @@ export function NoComment({
       }
     ])
 
+    let i = 0
     sub.on('event', event => {
       setEvents(events => insertEventIntoDescendingList(events, event))
-      fetchMetadata(event.pubkey)
+      fetchMetadata(event.pubkey, i)
+      i++
     })
 
     return () => {
@@ -223,10 +225,12 @@ export function NoComment({
     }
   }
 
-  async function fetchMetadata(pubkey) {
+  async function fetchMetadata(pubkey, delay = 0) {
     if (pubkey in metadata) return
     if (pubkey in metadataFetching.current) return
     metadataFetching.current[pubkey] = true
+    await new Promise(resolve => setTimeout(resolve, delay * 200))
+
     let done = 0
 
     let sub = pool.current.sub(relays, [{kinds: [0], authors: [pubkey]}])
