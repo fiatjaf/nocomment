@@ -98,7 +98,12 @@ export function NoComment({
       .then(events => {
         setBaseTag({
           filter: {'#e': events.slice(0, 3).map(event => event.id)},
-          reference: ['e', events[0].id, pool.current.seenOn(events[0].id)[0]]
+          reference: [
+            'e',
+            events[0].id,
+            pool.current.seenOn(events[0].id)[0],
+            'root'
+          ]
         })
       })
   }, [])
