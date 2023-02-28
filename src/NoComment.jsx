@@ -96,6 +96,8 @@ export function NoComment({
         }
       ])
       .then(events => {
+        if (events.length === 0) return
+
         setBaseTag({
           filter: {'#e': events.slice(0, 3).map(event => event.id)},
           reference: [
