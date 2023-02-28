@@ -69,6 +69,28 @@ export function NoComment({
     }
   }
 
+  let ownerTag = null
+  if (owner) {
+    try {
+      let {type, data} = nip19.decode(ownerTag)
+      switch (type) {
+        case 'npub':
+          ownerTag = ['p', data]
+          break
+        case 'nprofile':
+          ownerTag = ['p', data.pubkey]
+          if (data.relays.length > 0) {
+            ownerTag.push(data.relays[0])
+          }
+          break
+      }
+    } catch (err) {
+      if (owner.match(/^[a-f0-9]{64}$/)) {
+        ownerTag = ['p', owner]
+      }
+    }
+  }
+
   const [notices, setNotices] = useState([])
   const [baseTagImmediate, setBaseTag] = useState(customBaseTag)
   const [isInfoOpen, setIsInfoOpen] = useState(false)
@@ -300,15 +322,15 @@ export function NoComment({
       // create base event right here
       let sk = generatePrivateKey()
       let tags = [['r', url]]
-      if (owner !== '') {
-        tags.push(['p', owner])
+      if (ownerTag) {
+        tags.push(ownerTag)
       }
       let root = {
         pubkey: getPublicKey(sk),
         created_at: Math.round(Date.now() / 1000),
         kind: 1,
         tags: tags,
-        content: `Comments on ${url}` + (owner !== '' ? ` by #[1]` : '') + ` ↴`
+        content: `Comments on ${url}` + (ownerTag ? ` by #[1]` : '') + ` ↴`
       }
       root.id = getEventHash(root)
       root.sig = signEvent(root, sk)
