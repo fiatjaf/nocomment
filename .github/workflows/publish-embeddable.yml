@@ -1,0 +1,17 @@
+name: build and deploy to cloudflare pages
+on:
+  push:
+    branches:
+      - master
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: yarn && yarn build && yarn embeddable-debug
+      - uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: 444a281da7983eac7a37b9896aad917c
+          projectName: nocomment
+          directory: embeddable

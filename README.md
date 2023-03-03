@@ -9,7 +9,7 @@ A Nostr-powered embeddable website comments widget that _just works_.
 Anywhere in your website you want to see the comment box, include
 
 ```
-<script src="https://nocomment.netlify.app/embed.js" id="nocomment"></script>
+<script src="https://nocomment.fiatjaf.com/embed.js" id="nocomment"></script>
 ```
 
 You can pass special attributes to that `<script>` tag, such as
