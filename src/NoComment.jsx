@@ -51,10 +51,10 @@ export function NoComment({
         case 'naddr':
           const {kind, pubkey, identifier} = data
           customBaseTag = {
-            filter: {'#a': [`${kind}:${pubkey}${identifier}`]},
+            filter: {'#a': [`${kind}:${pubkey}:${identifier}`]},
             reference: [
               'a',
-              `${kind}:${pubkey}${identifier}`,
+              `${kind}:${pubkey}:${identifier}`,
               data.relays[0] || '',
               'root'
             ]
