@@ -18,6 +18,7 @@ export const InputSection = styled.div`
   padding: 8px;
   border: 1px solid var(--nc-primary-color, #0d6efd);
   border-radius: 4px;
+  position: relative;
 `
 
 export const InputSectionRow2 = styled.div`
@@ -62,13 +63,22 @@ export const PostButton = styled.button`
   }
 `
 
+export const Notices = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+`
+
 export const Notice = styled.div`
   color: var(--nc-primary-contrast, white);
   padding: 4px;
   text-align: center;
   background: var(--nc-primary-color, #0d6efd);
+  border-radius: 2px;
   color: white;
   margin: 8px;
+  width: 100%;
+  justify-self: center;
 `
 
 export const CommentCard = styled.div`
