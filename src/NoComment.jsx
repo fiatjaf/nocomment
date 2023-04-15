@@ -147,13 +147,14 @@ export function NoComment({
             thread={thread}
             metadata={metadata}
             relays={relays}
+            replyForm={editor}
           />
         ))}
       </div>
     </Container>
   )
 
-  function editor() {
+  function editor(parentId) {
     return (
       <Editor
         publicKey={publicKey}
@@ -167,6 +168,7 @@ export function NoComment({
         pool={pool}
         relays={relays}
         metadata={metadata}
+        parentId={parentId}
       />
     )
   }

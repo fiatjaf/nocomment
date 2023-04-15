@@ -29,7 +29,8 @@ export function Editor({
   url,
   pool,
   metadata,
-  relays
+  relays,
+  parentId = undefined
 }) {
   const [editable, setEditable] = useState(true)
   const [comment, setComment] = useState('')
@@ -166,11 +167,16 @@ export function Editor({
 
     console.log('base: ', rootReference)
 
+    let inReplyTo = []
+    if (parentId) {
+      inReplyTo.push(['e', parentId, relays[0] || '', 'reply'])
+    }
+
     let event = {
       pubkey: publicKey,
       created_at: Math.round(Date.now() / 1000),
       kind: 1,
-      tags: [rootReference],
+      tags: [rootReference].concat(inReplyTo),
       content: comment
     }
 

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useState} from 'react'
 import {nip19} from 'nostr-tools'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
@@ -10,11 +10,20 @@ import {
   CommentAuthor,
   CommentAuthorImage,
   CommentDate,
-  CommentContent
+  CommentContent,
+  ReplyWrap
 } from './components'
 import {getName, getImage} from './util'
+import ReplyButton from './ReplyButton'
 
-export default function Thread({thread, metadata, relays, level = 0}) {
+export default function Thread({
+  thread,
+  metadata,
+  relays,
+  replyForm,
+  level = 0
+}) {
+  const [expanded, setExpanded] = useState(false)
   return (
     <CommentCard key={thread.id}>
       <div>
@@ -36,8 +45,10 @@ export default function Thread({thread, metadata, relays, level = 0}) {
         >
           {dayjs(thread.created_at * 1000).from(new Date())}
         </CommentDate>
+        <ReplyButton onClick={() => setExpanded(!expanded)} />
       </div>
       <CommentContent>{thread.content}</CommentContent>
+      {expanded && <ReplyWrap>{replyForm(thread.id)}</ReplyWrap>}
       <div
         style={{
           paddingLeft: `${36 - 6 * Math.pow(1.2, level)}px`
@@ -50,6 +61,7 @@ export default function Thread({thread, metadata, relays, level = 0}) {
             metadata={metadata}
             relays={relays}
             level={level + 1}
+            replyForm={replyForm}
           />
         ))}
       </div>
