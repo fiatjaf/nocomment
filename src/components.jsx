@@ -63,6 +63,20 @@ export const PostButton = styled.button`
   }
 `
 
+export const GhostButton = styled.button`
+  background: var(--nc-ghost-background, transparent);
+  color: var(--nc-text-color, black);
+  min-width: 25px;
+  min-height: 25px;
+  border: none;
+
+  cursor: pointer;
+  margin: 0 8px;
+  &:hover {
+    color: var(--nc-text-color, #222);
+  }
+`
+
 export const Notices = styled.div`
   display: flex;
   flex-direction: column;
@@ -79,6 +93,10 @@ export const Notice = styled.div`
   margin: 8px;
   width: 100%;
   justify-self: center;
+`
+
+export const ReplyWrap = styled.div`
+  padding-top: 16px;
 `
 
 export const CommentCard = styled.div`
