@@ -273,21 +273,20 @@ export function NoComment({
     let sub = pool.current.sub(relays, [{kinds: [0], authors: [pubkey]}])
     done++
     sub.on('event', event => {
-      try {
-        if (
-          !metadata[pubkey] ||
-          metadata[pubkey].created_at < event.created_at
-        ) {
-          setMetadata(curr => ({
-            ...curr,
-            [pubkey]: {
-              ...JSON.parse(event.content),
-              created_at: event.created_at
+      if (!metadata[pubkey] || metadata[pubkey].created_at < event.created_at) {
+        setMetadata(curr => {
+          try {
+            return {
+              ...curr,
+              [pubkey]: {
+                ...JSON.parse(event.content),
+                created_at: event.created_at
+              }
             }
-          }))
-        }
-      } catch (err) {
-        /***/
+          } catch {
+            return curr
+          }
+        })
       }
     })
     sub.on('eose', () => {
