@@ -71,7 +71,7 @@ export function Editor({
             onClick={publicKey ? publishEvent : establishNostrKey}
             disabled={!editable}
           >
-            {publicKey ? (editable ? 'Post comment' : 'Submitting') : 'Get Key'}
+            {publicKey ? (editable ? 'Post comment' : 'Submitting') : 'Comment'}
           </PostButton>
         </InputSectionRow2>
       </InputSection>
