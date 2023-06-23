@@ -23,6 +23,12 @@ Custom CSS variables for styling:
 
 ```
 --nc-background: #003049;
+--nc-container-font-family: arial;
+--nc-comment-author-font-size: 1.2em;
+--nc-comment-author-font-family: monospace;
+--nc-comment-author-font-color: inherit;
+--nc-comment-date-font-family: sans-serif;
+--nc-comment-fate-font-size: 0.7em;
 --nc-text-background: #dddddd;
 --nc-text-color: #eae2b7;
 --nc-text-color-dark: #fcbf49;
