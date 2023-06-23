@@ -6,7 +6,8 @@ export const Container = styled.div`
   color: var(--nc-text-color, #888);
   padding: 18px;
   border-radius: 8px;
-  font-family: arial;
+  font-family: var(--nc-container-font-family, arial);
+  font-size: var(--nc-container-font-size, 1.2em);
   text-align: left;
   width: 100%;
 `
@@ -122,25 +123,25 @@ export const CommentAuthorImage = styled.img`
 `
 
 export const CommentAuthor = styled.a`
-  font-size: 1.2em;
-  font-family: monospace;
-  text-decoration: none;
-  color: inherit;
+  font-size: var(--nc-comment-author-font-size, 1.2em);
+  font-family: var(--nc-comment-author-font-family, monospace);
+  text-decoration: var(--nc-link-text-decor, none);
+  color: var(--nc-comment-author-font-color, inherit);
   font-weight: bold;
 
   &:hover {
-    text-decoration: underline;
+    text-decoration: var(--nc-link-text-decor-hover, underline);
   }
 `
 
 export const CommentDate = styled.a`
-  text-decoration: none;
-  color: inherit;
-  font-family: sans-serif;
-  font-size: 0.7em;
+  text-decoration: var(--nc-link-text-decor, none);
+  color: var(--nc-comment-date-color, inherit);
+  font-family: var(--nc-comment-date-font-family, sans-serif);
+  font-size: var(--nc-comment-date-font-size, 0.7em);
 
   &:hover {
-    text-decoration: underline;
+    text-decoration: var(--nc-link-text-decor-hover, underline);
   }
 `
 
@@ -153,6 +154,8 @@ export const CommentContent = styled.div`
 export const Textarea = styled.textarea`
   background-color: var(--nc-text-background, white);
   color: var(--nc-text-color, black);
+  font-family: var(--nc-textarea-font-family, inherit);
+  font-size: var(--nc-textarea-font-size, inherit);
   border: none;
   outline: none;
   width: 100%;
