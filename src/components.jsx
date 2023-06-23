@@ -6,7 +6,7 @@ export const Container = styled.div`
   color: var(--nc-text-color, #888);
   padding: 18px;
   border-radius: 8px;
-  font-family: arial;
+  font-family: var(--nc-container-font-family, arial);
   text-align: left;
   width: 100%;
 `
@@ -122,10 +122,10 @@ export const CommentAuthorImage = styled.img`
 `
 
 export const CommentAuthor = styled.a`
-  font-size: 1.2em;
-  font-family: monospace;
+  font-size: var(--nc-comment-author-font-size, 1.2em);
+  font-family: var(--nc-comment-author-font-family, monospace);
   text-decoration: none;
-  color: inherit;
+  color: var(--nc-comment-author-font-color, inherit);
   font-weight: bold;
 
   &:hover {
@@ -136,8 +136,8 @@ export const CommentAuthor = styled.a`
 export const CommentDate = styled.a`
   text-decoration: none;
   color: inherit;
-  font-family: sans-serif;
-  font-size: 0.7em;
+  font-family: var(--nc-comment-date-font-family, sans-serif);
+  font-size: var(--nc-comment-date-font-size, 0.7em);
 
   &:hover {
     text-decoration: underline;
