@@ -7,8 +7,7 @@ import {
   SvgInfo,
   Textarea,
   Notice,
-  Notices,
-  Info
+  Notices
 } from './components'
 import {
   generatePrivateKey,
@@ -16,7 +15,6 @@ import {
   getEventHash,
   signEvent
 } from 'nostr-tools'
-import {getName} from './util'
 
 export function Editor({
   publicKey,
@@ -28,15 +26,14 @@ export function Editor({
   ownerTag,
   url,
   pool,
-  metadata,
   relays,
-  parentId = undefined
+  parentId = undefined,
+  settingsContent
 }) {
   const [editable, setEditable] = useState(true)
   const [comment, setComment] = useState('')
   const [notices, setNotices] = useState([])
   const [isInfoOpen, setIsInfoOpen] = useState(false)
-  let selfName = getName(metadata, publicKey)
 
   return (
     <>
@@ -76,39 +73,7 @@ export function Editor({
         </InputSectionRow2>
       </InputSection>
 
-      {isInfoOpen && (
-        <Info>
-          Commenting{' '}
-          {selfName !== '_' && (
-            <>
-              as <em style={{color: 'green'}}>{selfName}</em>
-            </>
-          )}{' '}
-          using relays{' '}
-          <ul>
-            {relays.map(url => (
-              <li key={url} style={{color: 'orange', paddingRight: '5px'}}>
-                {url}
-              </li>
-            ))}
-          </ul>
-          <p>
-            Powered by{' '}
-            <a
-              style={{
-                marginTop: '4px',
-                fontWeight: 'bold',
-                color: 'var(--nc-primary-color)'
-              }}
-              target="_blank"
-              href="https://github.com/fiatjaf/nocomment"
-            >
-              NoComment
-            </a>
-            .
-          </p>
-        </Info>
-      )}
+      {isInfoOpen && settingsContent}
     </>
   )
 

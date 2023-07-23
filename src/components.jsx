@@ -78,6 +78,11 @@ export const GhostButton = styled.button`
   }
 `
 
+export const DangerText = styled.span`
+  color: var(--nc-danger-text-color, #bd0000);
+  font-size: large;
+`
+
 export const Notices = styled.div`
   display: flex;
   flex-direction: column;
