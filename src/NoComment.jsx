@@ -2,10 +2,11 @@ import React, {useState, useEffect, useRef, useMemo} from 'react'
 import {useDebounce} from 'use-debounce'
 import {SimplePool, nip05, nip19} from 'nostr-tools'
 
-import {normalizeURL, insertEventIntoDescendingList} from './util'
+import {normalizeURL, insertEventIntoDescendingList, getName} from './util'
 import {Container} from './components'
 import Thread, {computeThreads} from './Thread'
 import {Editor} from './Editor'
+import {RelayList} from './RelayList'
 
 export function NoComment({
   url = normalizeURL(location.href),
@@ -84,13 +85,14 @@ export function NoComment({
   const [events] = useDebounce(eventsImmediate, 1000, {leading: true})
   const threads = useMemo(() => computeThreads(events), [events])
   const [privateKey, setPrivateKey] = useState(null)
+  const [chosenRelays, setChosenRelays] = useState(relays)
 
   useEffect(() => {
     if (baseTag) return
 
     // search for the base event based on the #r tag (url)
     pool.current
-      .list(relays, [
+      .list(chosenRelays, [
         {
           '#r': [url],
           kinds: [1]
@@ -109,13 +111,13 @@ export function NoComment({
           ]
         })
       })
-  }, [])
+  }, [chosenRelays.length])
 
   useEffect(() => {
     if (!baseTag) return
 
     // query for comments
-    let sub = pool.current.sub(relays, [
+    let sub = pool.current.sub(chosenRelays, [
       {
         ...baseTag.filter,
         kinds: [1]
@@ -132,7 +134,7 @@ export function NoComment({
     return () => {
       sub.unsub()
     }
-  }, [baseTag])
+  }, [baseTag, chosenRelays.length])
 
   if (skip && skip !== '' && skip === location.pathname) return
 
@@ -146,7 +148,7 @@ export function NoComment({
             key={thread.id}
             thread={thread}
             metadata={metadata}
-            relays={relays}
+            relays={chosenRelays}
             replyForm={editor}
           />
         ))}
@@ -155,6 +157,7 @@ export function NoComment({
   )
 
   function editor(parentId) {
+    let selfName = getName(metadata, publicKey)
     return (
       <Editor
         publicKey={publicKey}
@@ -166,9 +169,15 @@ export function NoComment({
         url={url}
         setBaseTag={setBaseTag}
         pool={pool}
-        relays={relays}
-        metadata={metadata}
         parentId={parentId}
+        relays={chosenRelays}
+        settingsContent={
+          <RelayList
+            selfName={selfName}
+            relays={chosenRelays}
+            setRelays={setChosenRelays}
+          />
+        }
       />
     )
   }
@@ -181,7 +190,7 @@ export function NoComment({
 
     let done = 0
 
-    let sub = pool.current.sub(relays, [{kinds: [0], authors: [pubkey]}])
+    let sub = pool.current.sub(chosenRelays, [{kinds: [0], authors: [pubkey]}])
     done++
     sub.on('event', event => {
       if (!metadata[pubkey] || metadata[pubkey].created_at < event.created_at) {
