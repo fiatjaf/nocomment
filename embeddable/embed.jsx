@@ -6,15 +6,7 @@ const script = document.getElementById('nocomment')
 
 const relays = script.dataset.relays
   ? JSON.parse(script.dataset.relays)
-  : [
-      'wss://nostr.zebedee.cloud',
-      'wss://nostr.fmt.wiz.biz',
-      'wss://nostr-pub.wellorder.net',
-      'wss://relay.nostr.bg',
-      'wss://nos.lol',
-      'wss://no.str.cr',
-      'wss://relay.damus.io'
-    ]
+  : ['wss://nostr.wine', 'wss://nostr.mom', 'wss://nostr-pub.wellorder.net']
 const skip = script.dataset.skip || '/'
 const owner = script.dataset.owner || ''
 const customBase = script.dataset.customBase
