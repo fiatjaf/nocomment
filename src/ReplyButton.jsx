@@ -20,7 +20,7 @@ const ChatBubbleIcon = () => (
 
 const ReplyButton = ({onClick}) => {
   return (
-    <GhostButton type="button" onClick={onClick}>
+    <GhostButton type="button" onClick={onClick} aria-label="reply button">
       <ChatBubbleIcon />
     </GhostButton>
   )
