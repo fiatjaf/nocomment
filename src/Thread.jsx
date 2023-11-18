@@ -34,7 +34,10 @@ export default function Thread({
             href={'nostr:' + nip19.npubEncode(thread.pubkey)}
           >
             {getImage(metadata, thread.pubkey) && (
-              <CommentAuthorImage src={getImage(metadata, thread.pubkey)} />
+              <CommentAuthorImage
+                src={getImage(metadata, thread.pubkey)}
+                aria-label="comment author image"
+              />
             )}
             {getName(metadata, thread.pubkey)}
           </CommentAuthor>{' '}

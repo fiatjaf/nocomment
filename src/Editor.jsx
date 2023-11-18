@@ -42,6 +42,7 @@ export function Editor({
           value={comment}
           readOnly={!editable}
           onChange={e => setComment(e.target.value)}
+          aria-label="comment text area"
         />
         <InputSectionRow2>
           <Notices>
@@ -49,7 +50,10 @@ export function Editor({
               <Notice key={notice.text}>{notice.text}</Notice>
             ))}
           </Notices>
-          <InfoButton onClick={() => setIsInfoOpen(!isInfoOpen)}>
+          <InfoButton
+            onClick={() => setIsInfoOpen(!isInfoOpen)}
+            aria-label="info button"
+          >
             <SvgInfo
               xmlns="http://www.w3.org/2000/svg"
               x="0px"
@@ -67,6 +71,9 @@ export function Editor({
           <PostButton
             onClick={publicKey ? publishEvent : establishNostrKey}
             disabled={!editable}
+            aria-label={
+              publicKey ? (editable ? 'Post comment' : 'Submitting') : 'Comment'
+            }
           >
             {publicKey ? (editable ? 'Post comment' : 'Submitting') : 'Comment'}
           </PostButton>
