@@ -154,6 +154,9 @@ export const CommentContent = styled.div`
   margin-top: 8px;
   max-height: 306px;
   overflow-y: auto;
+  max-width: 600px;
+  white-space: pre-wrap;
+  word-break: break-all;
 `
 
 export const Textarea = styled.textarea`
