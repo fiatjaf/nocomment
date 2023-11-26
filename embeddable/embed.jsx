@@ -1,6 +1,6 @@
 import React from 'react'
 import {createRoot} from 'react-dom/client'
-import {NoComment} from '../lib/index.js'
+import {NoComment} from '../src/NoComment.jsx'
 
 const script = document.getElementById('nocomment')
 

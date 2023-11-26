@@ -72,7 +72,7 @@ export default function Thread({
   )
 }
 
-export function computeThreads(events) {
+export function computeThreads(baseTag, events) {
   let threadableEvents = events.map(event => ({...event, replies: []}))
 
   let threads = []
@@ -82,7 +82,7 @@ export function computeThreads(events) {
 
     // if this is not a reply to another comment we assume it is a reply
     // to the "root"/base -- i.e. a top-level comment
-    if (!reply) {
+    if (!reply || reply === baseTag.ref) {
       threads.unshift(event)
       continue
     }
@@ -91,7 +91,6 @@ export function computeThreads(events) {
     parent.replies.unshift(event)
   }
 
-  console.log(threads)
   return threads
 
   function getImmediateReply(tags) {

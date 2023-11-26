@@ -15,43 +15,44 @@ export function NoComment({
   skip,
   customBase
 }) {
-  let customBaseTag
-  if (customBase) {
-    try {
-      let {type, data} = nip19.decode(customBase)
-      switch (type) {
-        case 'note':
-          customBaseTag = {
-            filter: {'#e': [data]},
-            reference: ['e', data, '', 'root']
-          }
-          break
-        case 'nevent':
-          customBaseTag = {
-            filter: {'#e': [data.id]},
-            reference: ['e', data.id, data.relays[0] || '', 'root']
-          }
-          break
-        case 'naddr':
-          const {kind, pubkey, identifier} = data
-          customBaseTag = {
-            filter: {'#a': [`${kind}:${pubkey}:${identifier}`]},
-            reference: [
-              'a',
-              `${kind}:${pubkey}:${identifier}`,
-              data.relays[0] || '',
-              'root'
-            ]
-          }
-          break
-      }
-    } catch (err) {
-      customBaseTag = {
-        filter: {'#e': [customBase]},
-        reference: ['e', customBase, '', 'root']
+  let customBaseTag = useMemo(() => {
+    if (customBase) {
+      try {
+        let {type, data} = nip19.decode(customBase)
+        switch (type) {
+          case 'note':
+            return {
+              ref: data,
+              filter: {'#e': [data]},
+              reference: ['e', data, '', 'root']
+            }
+          case 'nevent':
+            return {
+              ref: data.id,
+              filter: {'#e': [data.id]},
+              reference: ['e', data.id, data.relays[0] || '', 'root']
+            }
+          case 'naddr':
+            const {kind, pubkey, identifier} = data
+            return {
+              ref: `${kind}:${pubkey}:${identifier}`,
+              filter: {'#a': [`${kind}:${pubkey}:${identifier}`]},
+              reference: [
+                'a',
+                `${kind}:${pubkey}:${identifier}`,
+                data.relays[0] || '',
+                'root'
+              ]
+            }
+        }
+      } catch (err) {
+        return {
+          filter: {'#e': [customBase]},
+          reference: ['e', customBase, '', 'root']
+        }
       }
     }
-  }
+  }, [customBase])
 
   let ownerTag = null
   if (owner) {
@@ -83,7 +84,10 @@ export function NoComment({
   const pool = useRef(new SimplePool())
   const [baseTag] = useDebounce(baseTagImmediate, 1000)
   const [events] = useDebounce(eventsImmediate, 1000, {leading: true})
-  const threads = useMemo(() => computeThreads(events), [events])
+  const threads = useMemo(() => {
+    if (!baseTag) return
+    return computeThreads(baseTag, events)
+  }, [baseTag, events])
   const [privateKey, setPrivateKey] = useState(null)
   const [chosenRelays, setChosenRelays] = useState(relays)
 
@@ -136,7 +140,9 @@ export function NoComment({
     }
   }, [baseTag, chosenRelays.length])
 
-  if (skip && skip !== '' && skip === location.pathname) return
+  if (skip && skip !== '' && skip === location.pathname) {
+    return
+  }
 
   return (
     <Container>
