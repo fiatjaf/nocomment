@@ -70,7 +70,7 @@ export function Editor({
           </InfoButton>
           <PostButton
             onClick={publicKey ? publishEvent : establishNostrKey}
-            disabled={!editable}
+            disabled={!editable || comment.trim() === ''}
             aria-label={
               publicKey ? (editable ? 'Post comment' : 'Submitting') : 'Comment'
             }
