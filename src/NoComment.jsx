@@ -149,7 +149,7 @@ export function NoComment({
       {editor()}
 
       <div>
-        {threads.map(thread => (
+        {threads?.map(thread => (
           <Thread
             key={thread.id}
             thread={thread}
