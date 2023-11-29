@@ -13,7 +13,8 @@ export function NoComment({
   relays = [],
   owner,
   skip,
-  customBase
+  customBase,
+  placeholder
 }) {
   let customBaseTag = useMemo(() => {
     if (customBase) {
@@ -177,6 +178,7 @@ export function NoComment({
         pool={pool}
         parentId={parentId}
         relays={chosenRelays}
+        placeholder={placeholder}
         settingsContent={
           <RelayList
             selfName={selfName}

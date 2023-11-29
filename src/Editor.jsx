@@ -28,7 +28,8 @@ export function Editor({
   pool,
   relays,
   parentId = undefined,
-  settingsContent
+  settingsContent,
+  placeholder
 }) {
   const [editable, setEditable] = useState(true)
   const [comment, setComment] = useState('')
@@ -43,6 +44,7 @@ export function Editor({
           readOnly={!editable}
           onChange={e => setComment(e.target.value)}
           aria-label="comment text area"
+          placeholder={placeholder}
         />
         <InputSectionRow2>
           <Notices>

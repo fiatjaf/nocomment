@@ -10,6 +10,7 @@ const relays = script.dataset.relays
 const skip = script.dataset.skip || '/'
 const owner = script.dataset.owner || ''
 const customBase = script.dataset.customBase
+const placeholder = script.dataset.placeholder || ''
 
 const container = document.createElement('div')
 container.style.width = '100%'
@@ -22,5 +23,6 @@ root.render(
     skip={skip}
     relays={relays}
     owner={owner}
+    placeholder={placeholder}
   />
 )
