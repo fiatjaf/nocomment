@@ -44,6 +44,7 @@ export function Editor({
           readOnly={!editable}
           onChange={e => setComment(e.target.value)}
           aria-label="comment text area"
+          name="textarea"
           placeholder={placeholder}
         />
         <InputSectionRow2>
