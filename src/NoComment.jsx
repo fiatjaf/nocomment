@@ -14,7 +14,8 @@ export function NoComment({
   owner,
   skip,
   customBase,
-  placeholder
+  placeholder,
+  readonly
 }) {
   let customBaseTag = useMemo(() => {
     if (customBase) {
@@ -147,7 +148,7 @@ export function NoComment({
 
   return (
     <Container>
-      {editor()}
+      {!readonly && editor()}
 
       <div>
         {threads?.map(thread => (
@@ -157,6 +158,7 @@ export function NoComment({
             metadata={metadata}
             relays={chosenRelays}
             replyForm={editor}
+            readonly={readonly}
           />
         ))}
       </div>

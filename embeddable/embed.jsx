@@ -11,6 +11,7 @@ const skip = script.dataset.skip || '/'
 const owner = script.dataset.owner || ''
 const customBase = script.dataset.customBase
 const placeholder = script.dataset.placeholder || ''
+const readonly = script.dataset.readonly === 'true'
 
 const container = document.createElement('div')
 container.style.width = '100%'
@@ -24,5 +25,6 @@ root.render(
     relays={relays}
     owner={owner}
     placeholder={placeholder}
+    readonly={readonly}
   />
 )

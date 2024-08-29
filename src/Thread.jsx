@@ -21,7 +21,8 @@ export default function Thread({
   metadata,
   relays,
   replyForm,
-  level = 0
+  level = 0,
+  readonly
 }) {
   const [expanded, setExpanded] = useState(false)
   return (
@@ -48,7 +49,7 @@ export default function Thread({
         >
           {dayjs(thread.created_at * 1000).from(new Date())}
         </CommentDate>
-        <ReplyButton onClick={() => setExpanded(!expanded)} />
+        {!readonly && <ReplyButton onClick={() => setExpanded(!expanded)} />}
       </div>
       <CommentContent>{thread.content}</CommentContent>
       {expanded && <ReplyWrap>{replyForm(thread.id)}</ReplyWrap>}
@@ -65,6 +66,7 @@ export default function Thread({
             relays={relays}
             level={level + 1}
             replyForm={replyForm}
+            readonly={readonly}
           />
         ))}
       </div>
