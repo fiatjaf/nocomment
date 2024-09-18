@@ -18,7 +18,7 @@ You can pass special attributes to that `<script>` tag, such as
 - `data-custom-base="reference"`, an **optional** event id in hex, `note1` or `nevent1` format, or a `naddr` reference to a [nip33](https://nips.be/33) entity. This will prevent the creation of generic base events.
 - `data-skip="/"`, an **optional** path of your website to skip rendering the widgets in. The default is `"/"`.
 - `data-owner="reference"`, an **optional** string with the post owner's public key in hex, `npub1` or `nprofile1` format.
-- `data-placeholder="reference"`, an **optional** string with the placeholder for the textarea
+- `data-placeholder="text"`, an **optional** string with the placeholder for the textarea
 - `data-readonly="true"`, an **optional** boolean to turn off new comments
 
 Custom CSS variables for styling:
