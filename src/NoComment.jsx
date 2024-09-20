@@ -1,6 +1,8 @@
 import React, {useState, useEffect, useRef, useMemo} from 'react'
 import {useDebounce} from 'use-debounce'
-import {SimplePool, nip05, nip19} from 'nostr-tools'
+import {SimplePool} from 'nostr-tools/pool'
+import * as nip05 from 'nostr-tools/nip05'
+import * as nip19 from 'nostr-tools/nip19'
 
 import {normalizeURL, insertEventIntoDescendingList, getName} from './util'
 import {Container} from './components'
@@ -97,13 +99,12 @@ export function NoComment({
     if (baseTag) return
 
     // search for the base event based on the #r tag (url)
+    pool.current.trackRelays = true
     pool.current
-      .list(chosenRelays, [
-        {
-          '#r': [url],
-          kinds: [1]
-        }
-      ])
+      .querySync(chosenRelays, {
+        '#r': [url],
+        kinds: [1]
+      })
       .then(events => {
         if (events.length === 0) return
 
@@ -112,10 +113,13 @@ export function NoComment({
           reference: [
             'e',
             events[0].id,
-            pool.current.seenOn(events[0].id)[0],
+            Array.from(pool.current.seenOn.get(events[0].id))[0].url,
             'root'
           ]
         })
+      })
+      .finally(() => {
+        pool.current.trackRelays = false
       })
   }, [chosenRelays.length])
 
@@ -123,22 +127,26 @@ export function NoComment({
     if (!baseTag) return
 
     // query for comments
-    let sub = pool.current.sub(chosenRelays, [
+    let sub = pool.current.subscribeMany(chosenRelays,
+      [
+        {
+          ...baseTag.filter,
+          kinds: [1]
+        }
+      ],
       {
-        ...baseTag.filter,
-        kinds: [1]
+        onevent(event) {
+          setEvents(events => insertEventIntoDescendingList(events, event))
+          fetchMetadata(event.pubkey, i)
+          i++
+        }
       }
-    ])
+    )
 
     let i = 0
-    sub.on('event', event => {
-      setEvents(events => insertEventIntoDescendingList(events, event))
-      fetchMetadata(event.pubkey, i)
-      i++
-    })
 
     return () => {
-      sub.unsub()
+      sub.close()
     }
   }, [baseTag, chosenRelays.length])
 
@@ -200,31 +208,34 @@ export function NoComment({
 
     let done = 0
 
-    let sub = pool.current.sub(chosenRelays, [{kinds: [0], authors: [pubkey]}])
-    done++
-    sub.on('event', event => {
-      if (!metadata[pubkey] || metadata[pubkey].created_at < event.created_at) {
-        setMetadata(curr => {
-          try {
-            return {
-              ...curr,
-              [pubkey]: {
-                ...JSON.parse(event.content),
-                created_at: event.created_at
+    let sub = pool.current.subscribeMany(chosenRelays, [{kinds: [0], authors: [pubkey]}],
+      {
+        onevent(event) {
+          if (!metadata[pubkey] || metadata[pubkey].created_at < event.created_at) {
+            setMetadata(curr => {
+              try {
+                return {
+                  ...curr,
+                  [pubkey]: {
+                    ...JSON.parse(event.content),
+                    created_at: event.created_at
+                  }
+                }
+              } catch {
+                return curr
               }
-            }
-          } catch {
-            return curr
+            })
           }
-        })
+        },
+        oneose() {
+          sub.close()
+          done--
+    
+          if (done === 0) fetchNIP05(pubkey, metadata[pubkey])
+        }
       }
-    })
-    sub.on('eose', () => {
-      sub.unsub()
-      done--
-
-      if (done === 0) fetchNIP05(pubkey, metadata[pubkey])
-    })
+    )
+    done++
   }
 
   async function fetchNIP05(pubkey, meta) {
