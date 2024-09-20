@@ -10,11 +10,10 @@ import {
   Notices
 } from './components'
 import {
-  generatePrivateKey,
+  generateSecretKey,
   getPublicKey,
-  getEventHash,
-  signEvent
-} from 'nostr-tools'
+  finalizeEvent
+} from 'nostr-tools/pure'
 
 export function Editor({
   publicKey,
@@ -98,7 +97,7 @@ export function Editor({
       // otherwise use a key from localStorage or generate a new one
       let privateKey = localStorage.getItem('nostrkey')
       if (!privateKey || privateKey.match(/^[a-f0-9]{64}$/)) {
-        privateKey = generatePrivateKey()
+        privateKey = generateSecretKey()
         localStorage.setItem('nostrkey', privateKey)
       }
       setPrivateKey(privateKey)
@@ -112,7 +111,7 @@ export function Editor({
     let rootReference = baseTag?.reference
     if (!rootReference) {
       // create base event right here
-      let sk = generatePrivateKey()
+      let sk = generateSecretKey()
       let tags = [['r', url]]
       if (ownerTag) {
         tags.push(ownerTag)
@@ -124,14 +123,16 @@ export function Editor({
         tags: tags,
         content: `Comments on ${url}` + (ownerTag ? ` by #[1]` : '') + ` ↴`
       }
-      root.id = getEventHash(root)
-      root.sig = signEvent(root, sk)
+      root = finalizeEvent(root, sk)
       rootReference = ['e', root.id, '', 'root']
       setBaseTag({filter: {'#e': [root.id]}, reference: rootReference})
 
-      pool.current.publish(relays, root)
+      await Promise.any(pool.current.publish(relays, root))
+      pool.current.trackRelays = true
+      await pool.current.get(relays, {ids: [root.id]})
+      pool.current.trackRelays = false
       setBaseTag(prev => {
-        rootReference[2] = pool.current.seenOn(root.id)[0]
+        rootReference[2] = Array.from(pool.current.seenOn.get(root.id))[0].url
 
         return {
           filter: {'#e': [root.id]},
@@ -159,8 +160,7 @@ export function Editor({
 
     // if we have a private key that means it was generated locally and we don't have a nip07 extension
     if (privateKey) {
-      event.id = getEventHash(event)
-      event.sig = signEvent(event, privateKey)
+      event = finalizeEvent(event, privateKey)
     } else {
       try {
         event = await window.nostr.signEvent(event)
@@ -182,12 +182,17 @@ export function Editor({
 
     console.log('publishing...')
 
-    let pub = pool.current.publish(relays, event)
-    pub.on('ok', relay => {
+    let pub = Promise.allSettled(pool.current.publish(relays, event))
+    pub.then(async _ => {
       clearTimeout(publishTimeout)
-      showNotice(`event ${event.id.slice(0, 5)}… published to ${relay}.`)
-      setComment('')
-      setEditable(true)
+      pool.current.trackRelays = true
+      await pool.current.querySync(relays, {ids: [event.id]})
+      pool.current.trackRelays = false
+      pool.current.seenOn.get(event.id).forEach(relay => {
+        showNotice(`event ${event.id.slice(0, 5)}… published to ${relay.url}.`)
+        setComment('')
+        setEditable(true)
+      })
     })
   }
 
