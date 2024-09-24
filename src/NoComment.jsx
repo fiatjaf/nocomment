@@ -51,6 +51,7 @@ export function NoComment({
         }
       } catch (err) {
         return {
+          ref: customBase,
           filter: {'#e': [customBase]},
           reference: ['e', customBase, '', 'root']
         }
