@@ -21,40 +21,32 @@ export function NoComment({
 }) {
   let customBaseTag = useMemo(() => {
     if (customBase) {
+      let id = null
+      let address = null
+      let relay = ''
       try {
         let {type, data} = nip19.decode(customBase)
-        switch (type) {
-          case 'note':
-            return {
-              ref: data,
-              filter: {'#e': [data]},
-              reference: ['e', data, '', 'root']
-            }
-          case 'nevent':
-            return {
-              ref: data.id,
-              filter: {'#e': [data.id]},
-              reference: ['e', data.id, data.relays[0] || '', 'root']
-            }
-          case 'naddr':
-            const {kind, pubkey, identifier} = data
-            return {
-              ref: `${kind}:${pubkey}:${identifier}`,
-              filter: {'#a': [`${kind}:${pubkey}:${identifier}`]},
-              reference: [
-                'a',
-                `${kind}:${pubkey}:${identifier}`,
-                data.relays[0] || '',
-                'root'
-              ]
-            }
+        if (type === 'naddr') {
+          address = `${data.kind}:${data.pubkey}:${data.identifier}`
+        } else {
+          id = data.id ?? data
         }
+        relay = data.relays?.[0] ?? ''
       } catch (err) {
+        id = customBase
+      }
+
+      if (address) {
         return {
-          ref: customBase,
-          filter: {'#e': [customBase]},
-          reference: ['e', customBase, '', 'root']
+          ref: address,
+          filter: {'#a': [address]},
+          reference: ['a', address, relay, 'root']
         }
+      }
+      return {
+        ref: id,
+        filter: {'#e': [id]},
+        reference: ['e', id, relay, 'root']
       }
     }
   }, [customBase])
