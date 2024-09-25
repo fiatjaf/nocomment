@@ -14,6 +14,7 @@ import {
   getPublicKey,
   finalizeEvent
 } from 'nostr-tools/pure'
+import {bytesToHex, hexToBytes} from '@noble/hashes/utils'
 
 export function Editor({
   publicKey,
@@ -98,7 +99,9 @@ export function Editor({
       let privateKey = localStorage.getItem('nostrkey')
       if (!privateKey || privateKey.match(/^[a-f0-9]{64}$/)) {
         privateKey = generateSecretKey()
-        localStorage.setItem('nostrkey', privateKey)
+        localStorage.setItem('nostrkey', bytesToHex(privateKey))
+      } else {
+        privateKey = hexToBytes(privateKey)
       }
       setPrivateKey(privateKey)
       setPublicKey(getPublicKey(privateKey))
