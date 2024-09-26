@@ -39,19 +39,23 @@ export function NoComment({
       if (address) {
         return {
           ref: address,
-          filter: {
-            '#a': [address],
-            kinds: [1]
-          },
+          filters: [
+            {
+              '#a': [address],
+              kinds: [1]
+            }
+          ],
           reference: ['a', address, relay, 'root']
         }
       }
       return {
         ref: id,
-        filter: {
-          '#e': [id],
-          kinds: [1]
-        },
+        filters: [
+          {
+            '#e': [id],
+            kinds: [1]
+          }
+        ],
         reference: ['e', id, relay, 'root']
       }
     }
@@ -108,10 +112,12 @@ export function NoComment({
         if (events.length === 0) return
 
         setBaseTag({
-          filter: {
-            '#e': events.slice(0, 3).map(event => event.id),
-            kinds: [1]
-          },
+          filters: [
+            {
+              '#e': events.slice(0, 3).map(event => event.id),
+              kinds: [1]
+            }
+          ],
           reference: [
             'e',
             events[0].id,
@@ -129,7 +135,7 @@ export function NoComment({
     if (!baseTag) return
 
     // query for comments
-    let sub = pool.current.subscribeMany(chosenRelays, [baseTag.filter], {
+    let sub = pool.current.subscribeMany(chosenRelays, baseTag.filters, {
       onevent(event) {
         setEvents(events => insertEventIntoDescendingList(events, event))
         fetchMetadata(event.pubkey, i)
