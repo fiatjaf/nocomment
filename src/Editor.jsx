@@ -108,7 +108,7 @@ export function Editor({
   async function publishEvent() {
     setEditable(false)
 
-    let rootReference = baseTag?.reference
+    let rootReference = baseTag?.rootReference
     if (!rootReference) {
       // create base event right here
       let sk = generateSecretKey()
@@ -132,7 +132,7 @@ export function Editor({
             kinds: [1]
           }
         ],
-        reference: rootReference
+        rootReference
       })
 
       await Promise.any(pool.current.publish(relays, root))
@@ -149,7 +149,7 @@ export function Editor({
               kinds: [1]
             }
           ],
-          reference: rootReference
+          rootReference
         }
       })
     }

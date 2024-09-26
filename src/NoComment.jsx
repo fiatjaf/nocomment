@@ -45,7 +45,7 @@ export function NoComment({
               kinds: [1]
             }
           ],
-          reference: ['a', address, relay, 'root']
+          rootReference: ['a', address, relay, 'root']
         }
       }
       return {
@@ -56,7 +56,7 @@ export function NoComment({
             kinds: [1]
           }
         ],
-        reference: ['e', id, relay, 'root']
+        rootReference: ['e', id, relay, 'root']
       }
     }
   }, [customBase])
@@ -118,7 +118,7 @@ export function NoComment({
               kinds: [1]
             }
           ],
-          reference: [
+          rootReference: [
             'e',
             events[0].id,
             Array.from(pool.current.seenOn.get(events[0].id))[0].url,
