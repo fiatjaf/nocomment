@@ -125,7 +125,13 @@ export function Editor({
       }
       root = finalizeEvent(root, sk)
       rootReference = ['e', root.id, '', 'root']
-      setBaseTag({filter: {'#e': [root.id]}, reference: rootReference})
+      setBaseTag({
+        filter: {
+          '#e': [root.id],
+          kinds: [1]
+        },
+        reference: rootReference
+      })
 
       await Promise.any(pool.current.publish(relays, root))
       pool.current.trackRelays = true
@@ -135,7 +141,10 @@ export function Editor({
         rootReference[2] = Array.from(pool.current.seenOn.get(root.id))[0].url
 
         return {
-          filter: {'#e': [root.id]},
+          filter: {
+            '#e': [root.id],
+            kinds: [1]
+          },
           reference: rootReference
         }
       })
