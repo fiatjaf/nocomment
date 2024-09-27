@@ -124,7 +124,7 @@ export function Editor({
         content: `Comments on ${url}` + (ownerTag ? ` by #[1]` : '') + ` ↴`
       }
       root = finalizeEvent(root, sk)
-      rootReference = ['e', root.id, '', 'root']
+      rootReference = [['e', root.id, '', 'root']]
       setBaseTag({
         filters: [
           {
@@ -140,7 +140,7 @@ export function Editor({
       await pool.current.get(relays, {ids: [root.id]})
       pool.current.trackRelays = false
       setBaseTag(prev => {
-        rootReference[2] = Array.from(pool.current.seenOn.get(root.id))[0].url
+        rootReference[0][2] = Array.from(pool.current.seenOn.get(root.id))[0].url
 
         return {
           filters: [
@@ -154,7 +154,7 @@ export function Editor({
       })
     }
 
-    console.log('base: ', rootReference)
+    console.log('base: ', rootReference[0])
 
     let inReplyTo = []
     if (parentId) {
@@ -165,7 +165,7 @@ export function Editor({
       pubkey: publicKey,
       created_at: Math.round(Date.now() / 1000),
       kind: 1,
-      tags: [rootReference].concat(inReplyTo),
+      tags: rootReference.concat(inReplyTo),
       content: comment
     }
 
