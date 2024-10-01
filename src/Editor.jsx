@@ -26,7 +26,7 @@ export function Editor({
   url,
   pool,
   relays,
-  parentId = undefined,
+  parent = undefined,
   settingsContent,
   placeholder
 }) {
@@ -157,8 +157,8 @@ export function Editor({
     console.log('base: ', rootReference[0])
 
     let inReplyTo = []
-    if (parentId) {
-      inReplyTo.push(['e', parentId, relays[0] || '', 'reply'])
+    if (parent) {
+      inReplyTo.push(['e', parent.id, relays[0] || '', 'reply'])
     }
 
     let event = {

@@ -175,7 +175,7 @@ export function NoComment({
     </Container>
   )
 
-  function editor(parentId) {
+  function editor(parent) {
     let selfName = getName(metadata, publicKey)
     return (
       <Editor
@@ -188,7 +188,7 @@ export function NoComment({
         url={url}
         setBaseTag={setBaseTag}
         pool={pool}
-        parentId={parentId}
+        parent={parent}
         relays={chosenRelays}
         placeholder={placeholder}
         settingsContent={
