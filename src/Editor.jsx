@@ -148,7 +148,12 @@ export function Editor({
 
     let inReplyTo = []
     if (parentId) {
-      inReplyTo.push(['e', parentId, relays[0] || '', 'reply'])
+      inReplyTo.push([
+        'e',
+        parentId,
+        Array.from(pool.current.seenOn.get(parentId))[0].url,
+        'reply'
+      ])
     }
 
     let event = {
