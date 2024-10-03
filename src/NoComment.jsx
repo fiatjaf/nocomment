@@ -45,14 +45,8 @@ export function NoComment({
             setBaseTag({
               ref: address,
               filters: [
-                {
-                  '#a': [address],
-                  kinds: [1]
-                },
-                {
-                  '#A': [address],
-                  kinds: [1111]
-                }
+                {'#a': [address], kinds: [1]},
+                {'#A': [address], kinds: [1111]}
               ],
               rootReference: [
                 ['A', address, relay],
@@ -69,14 +63,8 @@ export function NoComment({
             setBaseTag({
               ref: id,
               filters: [
-                {
-                  '#e': [id],
-                  kinds: [1]
-                },
-                {
-                  '#E': [id],
-                  kinds: [1111]
-                }
+                {'#e': [id], kinds: [1]},
+                {'#E': [id], kinds: [1111]}
               ],
               rootReference: [
                 ['E', id, relay, event.pubkey],
