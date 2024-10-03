@@ -180,6 +180,7 @@ export function NoComment({
     if (!baseTag) return
 
     // query for comments
+    pool.current.trackRelays = true
     let sub = pool.current.subscribeMany(chosenRelays, baseTag.filters, {
       onevent(event) {
         setEvents(events => insertEventIntoDescendingList(events, event))
@@ -192,6 +193,7 @@ export function NoComment({
 
     return () => {
       sub.close()
+      pool.current.trackRelays = false
     }
   }, [baseTag, chosenRelays.length])
 
