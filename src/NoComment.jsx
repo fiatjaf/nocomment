@@ -141,7 +141,7 @@ export function NoComment({
         }
 
         let urlObj = new URL(url)
-        let domain = `${urlObj.protocol}://${urlObj.host}`
+        let domain = `${urlObj.protocol}//${urlObj.host}`
         let parentReference = [
           ['i', url],
           ['k', domain]
