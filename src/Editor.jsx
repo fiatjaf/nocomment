@@ -108,63 +108,23 @@ export function Editor({
   async function publishEvent() {
     setEditable(false)
 
-    let rootReference = baseTag?.rootReference
-    if (!rootReference) {
-      // create base event right here
-      let sk = generateSecretKey()
-      let tags = [['r', url]]
-      if (ownerTag) {
-        tags.push(ownerTag)
-      }
-      let root = {
-        pubkey: getPublicKey(sk),
-        created_at: Math.round(Date.now() / 1000),
-        kind: 1,
-        tags: tags,
-        content: `Comments on ${url}` + (ownerTag ? ` by #[1]` : '') + ` ↴`
-      }
-      root = finalizeEvent(root, sk)
-      rootReference = [['e', root.id, '', 'root']]
-      setBaseTag({
-        filters: [
-          {
-            '#e': [root.id],
-            kinds: [1]
-          }
-        ],
-        rootReference
-      })
-
-      await Promise.any(pool.current.publish(relays, root))
-      pool.current.trackRelays = true
-      await pool.current.get(relays, {ids: [root.id]})
-      pool.current.trackRelays = false
-      setBaseTag(prev => {
-        rootReference[0][2] = Array.from(pool.current.seenOn.get(root.id))[0].url
-
-        return {
-          filters: [
-            {
-              '#e': [root.id],
-              kinds: [1]
-            }
-          ],
-          rootReference
-        }
-      })
-    }
+    let rootReference = baseTag.rootReference
 
     console.log('base: ', rootReference[0])
 
     let inReplyTo = []
     if (parent) {
-      inReplyTo.push(['e', parent.id, relays[0] || '', 'reply'])
+      inReplyTo.push(['e', parent.id, relays[0] || '', parent.pubkey])
+      inReplyTo.push(['k', parent.kind.toString()])
+      inReplyTo.push(['p', parent.pubkey])
+    } else {
+      inReplyTo = baseTag.parentReference
     }
 
     let event = {
       pubkey: publicKey,
       created_at: Math.round(Date.now() / 1000),
-      kind: 1,
+      kind: 1111,
       tags: rootReference.concat(inReplyTo),
       content: comment
     }

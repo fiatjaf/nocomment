@@ -111,7 +111,7 @@ export function computeThreads(baseTag, events) {
         }
 
         // use the last "e" tag if none are marked as "reply"
-        if (curr === null) curr = tag[1]
+        if (curr === null || tag[0] === 'a') curr = tag[1]
       }
     }
     return curr

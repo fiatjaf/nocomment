@@ -19,7 +19,7 @@ export function NoComment({
   placeholder,
   readonly
 }) {
-  let customBaseTag = useMemo(() => {
+  useEffect(() => {
     if (customBase) {
       let id = null
       let address = null
@@ -36,28 +36,63 @@ export function NoComment({
         id = customBase
       }
 
-      if (address) {
-        return {
-          ref: address,
-          filters: [
-            {
-              '#a': [address],
-              kinds: [1]
-            }
-          ],
-          rootReference: [['a', address, relay, 'root']]
-        }
-      }
-      return {
-        ref: id,
-        filters: [
-          {
-            '#e': [id],
-            kinds: [1]
+      pool.current.trackRelays = true
+      pool.current.get(relays, address ? {'#a': [address]} : {'#e': [id]})
+        .then(event => {
+          relay = relay || Array.from(pool.current.seenOn.get(event.id))[0].url
+
+          if (address) {
+            setBaseTag({
+              ref: address,
+              filters: [
+                {
+                  '#a': [address],
+                  kinds: [1]
+                },
+                {
+                  '#A': [address],
+                  kinds: [1111]
+                }
+              ],
+              rootReference: [
+                ['A', address, relay],
+                ['K', event.kind.toString()]
+              ],
+              parentReference: [
+                ['a', address, relay],
+                ['e', id, relay],
+                ['k', event.kind.toString()],
+                ['p', event.pubkey]
+              ]
+            })
+          } else {
+            setBaseTag({
+              ref: id,
+              filters: [
+                {
+                  '#e': [id],
+                  kinds: [1]
+                },
+                {
+                  '#E': [id],
+                  kinds: [1111]
+                }
+              ],
+              rootReference: [
+                ['E', id, relay, event.pubkey],
+                ['K', event.kind.toString()]
+              ],
+              parentReference: [
+                ['e', id, relay, event.pubkey],
+                ['k', event.kind.toString()],
+                ['p', event.pubkey]
+              ]
+            })
           }
-        ],
-        rootReference: [['e', id, relay, 'root']]
-      }
+        })
+        .finally(() => {
+          pool.current.trackRelays = false
+        })
     }
   }, [customBase])
 
@@ -83,7 +118,7 @@ export function NoComment({
     }
   }
 
-  const [baseTagImmediate, setBaseTag] = useState(customBaseTag)
+  const [baseTagImmediate, setBaseTag] = useState(null)
   const [publicKey, setPublicKey] = useState(null)
   const [eventsImmediate, setEvents] = useState([])
   const [metadata, setMetadata] = useState({})
@@ -99,7 +134,7 @@ export function NoComment({
   const [chosenRelays, setChosenRelays] = useState(relays)
 
   useEffect(() => {
-    if (baseTag) return
+    if (customBase) return
 
     // search for the base event based on the #r tag (url)
     pool.current.trackRelays = true
@@ -109,23 +144,31 @@ export function NoComment({
         kinds: [1]
       })
       .then(events => {
-        if (events.length === 0) return
+        let filters = [{'#I': [url], kinds: [1111]}]
+        if (events.length !== 0) {
+          filters.push({
+            '#e': events.slice(0, 3).map(event => event.id),
+            kinds: [1]
+          })
+        }
+
+        let urlObj = new URL(url)
+        let domain = `${urlObj.protocol}://${urlObj.host}`
+        let parentReference = [
+          ['i', url],
+          ['k', domain]
+        ]
+        if (ownerTag) {
+          parentReference.push(ownerTag)
+        }
 
         setBaseTag({
-          filters: [
-            {
-              '#e': events.slice(0, 3).map(event => event.id),
-              kinds: [1]
-            }
-          ],
+          filters,
           rootReference: [
-            [
-              'e',
-              events[0].id,
-              Array.from(pool.current.seenOn.get(events[0].id))[0].url,
-              'root'
-            ]
-          ]
+            ['I', url],
+            ['K', domain]
+          ],
+          parentReference
         })
       })
       .finally(() => {
