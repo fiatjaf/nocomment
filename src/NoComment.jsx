@@ -19,6 +19,43 @@ export function NoComment({
   placeholder,
   readonly
 }) {
+  let ownerTag = null
+  if (owner) {
+    try {
+      let {type, data} = nip19.decode(ownerTag)
+      switch (type) {
+        case 'npub':
+          ownerTag = ['p', data]
+          break
+        case 'nprofile':
+          ownerTag = ['p', data.pubkey]
+          if (data.relays.length > 0) {
+            ownerTag.push(data.relays[0])
+          }
+          break
+      }
+    } catch (err) {
+      if (owner.match(/^[a-f0-9]{64}$/)) {
+        ownerTag = ['p', owner]
+      }
+    }
+  }
+
+  const [baseTagImmediate, setBaseTag] = useState(null)
+  const [publicKey, setPublicKey] = useState(null)
+  const [eventsImmediate, setEvents] = useState([])
+  const [metadata, setMetadata] = useState({})
+  const metadataFetching = useRef({})
+  const pool = useRef(new SimplePool())
+  const [baseTag] = useDebounce(baseTagImmediate, 1000)
+  const [events] = useDebounce(eventsImmediate, 1000, {leading: true})
+  const threads = useMemo(() => {
+    if (!baseTag) return
+    return computeThreads(baseTag, events)
+  }, [baseTag, events])
+  const [privateKey, setPrivateKey] = useState(null)
+  const [chosenRelays, setChosenRelays] = useState(relays)
+
   useEffect(() => {
     if (customBase) {
       let id = null
@@ -87,43 +124,6 @@ export function NoComment({
         })
     }
   }, [customBase])
-
-  let ownerTag = null
-  if (owner) {
-    try {
-      let {type, data} = nip19.decode(ownerTag)
-      switch (type) {
-        case 'npub':
-          ownerTag = ['p', data]
-          break
-        case 'nprofile':
-          ownerTag = ['p', data.pubkey]
-          if (data.relays.length > 0) {
-            ownerTag.push(data.relays[0])
-          }
-          break
-      }
-    } catch (err) {
-      if (owner.match(/^[a-f0-9]{64}$/)) {
-        ownerTag = ['p', owner]
-      }
-    }
-  }
-
-  const [baseTagImmediate, setBaseTag] = useState(null)
-  const [publicKey, setPublicKey] = useState(null)
-  const [eventsImmediate, setEvents] = useState([])
-  const [metadata, setMetadata] = useState({})
-  const metadataFetching = useRef({})
-  const pool = useRef(new SimplePool())
-  const [baseTag] = useDebounce(baseTagImmediate, 1000)
-  const [events] = useDebounce(eventsImmediate, 1000, {leading: true})
-  const threads = useMemo(() => {
-    if (!baseTag) return
-    return computeThreads(baseTag, events)
-  }, [baseTag, events])
-  const [privateKey, setPrivateKey] = useState(null)
-  const [chosenRelays, setChosenRelays] = useState(relays)
 
   useEffect(() => {
     if (customBase) return

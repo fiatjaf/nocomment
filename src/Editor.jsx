@@ -115,16 +115,18 @@ export function Editor({
 
     console.log('base: ', rootReference[0])
 
-    let inReplyTo = []
+    let inReplyTo
     if (parent) {
-      inReplyTo.push([
-        'e',
-        parent.id,
-        Array.from(pool.current.seenOn.get(parent.id))[0].url,
-        parent.pubkey
-      ])
-      inReplyTo.push(['k', parent.kind.toString()])
-      inReplyTo.push(['p', parent.pubkey])
+      inReplyTo = [
+        [
+          'e',
+          parent.id,
+          Array.from(pool.current.seenOn.get(parent.id))[0].url,
+          parent.pubkey
+        ],
+        ['k', parent.kind.toString()],
+        ['p', parent.pubkey]
+      ]
     } else {
       inReplyTo = baseTag.parentReference
     }
