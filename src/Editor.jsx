@@ -120,7 +120,7 @@ export function Editor({
       inReplyTo.push([
         'e',
         parent.id,
-        Array.from(pool.current.seenOn.get(parentId))[0].url,
+        Array.from(pool.current.seenOn.get(parent.id))[0].url,
         parent.pubkey
       ])
       inReplyTo.push(['k', parent.kind.toString()])

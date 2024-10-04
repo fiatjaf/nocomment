@@ -23,21 +23,25 @@ export function NoComment({
     if (customBase) {
       let id = null
       let address = null
+      let filter = null
       let relay = ''
       try {
         let {type, data} = nip19.decode(customBase)
         if (type === 'naddr') {
           address = `${data.kind}:${data.pubkey}:${data.identifier}`
+          filter = {kinds: [data.kind], authors: [data.pubkey], "#d": [data.identifier]}
         } else {
           id = data.id ?? data
+          filter = {ids: [id]}
         }
         relay = data.relays?.[0] ?? ''
       } catch (err) {
         id = customBase
+        filter = {ids: [id]}
       }
 
       pool.current.trackRelays = true
-      pool.current.get(relays, address ? {'#a': [address]} : {'#e': [id]})
+      pool.current.get(relays, filter)
         .then(event => {
           relay = relay || Array.from(pool.current.seenOn.get(event.id))[0].url
 
@@ -54,7 +58,7 @@ export function NoComment({
               ],
               parentReference: [
                 ['a', address, relay],
-                ['e', id, relay],
+                ['e', event.id, relay],
                 ['k', event.kind.toString()],
                 ['p', event.pubkey]
               ]
