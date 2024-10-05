@@ -19,46 +19,6 @@ export function NoComment({
   placeholder,
   readonly
 }) {
-  let customBaseTag = useMemo(() => {
-    if (customBase) {
-      try {
-        let {type, data} = nip19.decode(customBase)
-        switch (type) {
-          case 'note':
-            return {
-              ref: data,
-              filter: {'#e': [data]},
-              reference: ['e', data, '', 'root']
-            }
-          case 'nevent':
-            return {
-              ref: data.id,
-              filter: {'#e': [data.id]},
-              reference: ['e', data.id, data.relays[0] || '', 'root']
-            }
-          case 'naddr':
-            const {kind, pubkey, identifier} = data
-            return {
-              ref: `${kind}:${pubkey}:${identifier}`,
-              filter: {'#a': [`${kind}:${pubkey}:${identifier}`]},
-              reference: [
-                'a',
-                `${kind}:${pubkey}:${identifier}`,
-                data.relays[0] || '',
-                'root'
-              ]
-            }
-        }
-      } catch (err) {
-        return {
-          ref: customBase,
-          filter: {'#e': [customBase]},
-          reference: ['e', customBase, '', 'root']
-        }
-      }
-    }
-  }, [customBase])
-
   let ownerTag = null
   if (owner) {
     try {
@@ -81,7 +41,7 @@ export function NoComment({
     }
   }
 
-  const [baseTagImmediate, setBaseTag] = useState(customBaseTag)
+  const [baseTagImmediate, setBaseTag] = useState(null)
   const [publicKey, setPublicKey] = useState(null)
   const [eventsImmediate, setEvents] = useState([])
   const [metadata, setMetadata] = useState({})
@@ -97,7 +57,76 @@ export function NoComment({
   const [chosenRelays, setChosenRelays] = useState(relays)
 
   useEffect(() => {
-    if (baseTag) return
+    if (customBase) {
+      let id = null
+      let address = null
+      let filter = null
+      let relay = ''
+      try {
+        let {type, data} = nip19.decode(customBase)
+        if (type === 'naddr') {
+          address = `${data.kind}:${data.pubkey}:${data.identifier}`
+          filter = {kinds: [data.kind], authors: [data.pubkey], "#d": [data.identifier]}
+        } else {
+          id = data.id ?? data
+          filter = {ids: [id]}
+        }
+        relay = data.relays?.[0] ?? ''
+      } catch (err) {
+        id = customBase
+        filter = {ids: [id]}
+      }
+
+      pool.current.trackRelays = true
+      pool.current.get(relays, filter)
+        .then(event => {
+          relay = relay || Array.from(pool.current.seenOn.get(event.id))[0].url
+
+          if (address) {
+            setBaseTag({
+              ref: address,
+              filters: [
+                {'#a': [address], kinds: [1]},
+                {'#A': [address], kinds: [1111]}
+              ],
+              rootReference: [
+                ['A', address, relay],
+                ['K', event.kind.toString()]
+              ],
+              parentReference: [
+                ['a', address, relay],
+                ['e', event.id, relay],
+                ['k', event.kind.toString()],
+                ['p', event.pubkey]
+              ]
+            })
+          } else {
+            setBaseTag({
+              ref: id,
+              filters: [
+                {'#e': [id], kinds: [1]},
+                {'#E': [id], kinds: [1111]}
+              ],
+              rootReference: [
+                ['E', id, relay, event.pubkey],
+                ['K', event.kind.toString()]
+              ],
+              parentReference: [
+                ['e', id, relay, event.pubkey],
+                ['k', event.kind.toString()],
+                ['p', event.pubkey]
+              ]
+            })
+          }
+        })
+        .finally(() => {
+          pool.current.trackRelays = false
+        })
+    }
+  }, [customBase])
+
+  useEffect(() => {
+    if (customBase) return
 
     // search for the base event based on the #r tag (url)
     pool.current.trackRelays = true
@@ -107,16 +136,31 @@ export function NoComment({
         kinds: [1]
       })
       .then(events => {
-        if (events.length === 0) return
+        let filters = [{'#I': [url], kinds: [1111]}]
+        if (events.length !== 0) {
+          filters.push({
+            '#e': events.slice(0, 3).map(event => event.id),
+            kinds: [1]
+          })
+        }
+
+        let urlObj = new URL(url)
+        let domain = `${urlObj.protocol}//${urlObj.host}`
+        let parentReference = [
+          ['i', url],
+          ['k', domain]
+        ]
+        if (ownerTag) {
+          parentReference.push(ownerTag)
+        }
 
         setBaseTag({
-          filter: {'#e': events.slice(0, 3).map(event => event.id)},
-          reference: [
-            'e',
-            events[0].id,
-            Array.from(pool.current.seenOn.get(events[0].id))[0].url,
-            'root'
-          ]
+          filters,
+          rootReference: [
+            ['I', url],
+            ['K', domain]
+          ],
+          parentReference
         })
       })
       .finally(() => {
@@ -129,21 +173,13 @@ export function NoComment({
 
     // query for comments
     pool.current.trackRelays = true
-    let sub = pool.current.subscribeMany(chosenRelays,
-      [
-        {
-          ...baseTag.filter,
-          kinds: [1]
-        }
-      ],
-      {
-        onevent(event) {
-          setEvents(events => insertEventIntoDescendingList(events, event))
-          fetchMetadata(event.pubkey, i)
-          i++
-        }
+    let sub = pool.current.subscribeMany(chosenRelays, baseTag.filters, {
+      onevent(event) {
+        setEvents(events => insertEventIntoDescendingList(events, event))
+        fetchMetadata(event.pubkey, i)
+        i++
       }
-    )
+    })
 
     let i = 0
 
@@ -176,7 +212,7 @@ export function NoComment({
     </Container>
   )
 
-  function editor(parentId) {
+  function editor(parent) {
     let selfName = getName(metadata, publicKey)
     return (
       <Editor
@@ -189,7 +225,7 @@ export function NoComment({
         url={url}
         setBaseTag={setBaseTag}
         pool={pool}
-        parentId={parentId}
+        parent={parent}
         relays={chosenRelays}
         placeholder={placeholder}
         settingsContent={

@@ -27,7 +27,7 @@ export function Editor({
   url,
   pool,
   relays,
-  parentId = undefined,
+  parent = undefined,
   settingsContent,
   placeholder
 }) {
@@ -111,56 +111,31 @@ export function Editor({
   async function publishEvent() {
     setEditable(false)
 
-    let rootReference = baseTag?.reference
-    if (!rootReference) {
-      // create base event right here
-      let sk = generateSecretKey()
-      let tags = [['r', url]]
-      if (ownerTag) {
-        tags.push(ownerTag)
-      }
-      let root = {
-        pubkey: getPublicKey(sk),
-        created_at: Math.round(Date.now() / 1000),
-        kind: 1,
-        tags: tags,
-        content: `Comments on ${url}` + (ownerTag ? ` by #[1]` : '') + ` ↴`
-      }
-      root = finalizeEvent(root, sk)
-      rootReference = ['e', root.id, '', 'root']
-      setBaseTag({filter: {'#e': [root.id]}, reference: rootReference})
+    let rootReference = baseTag.rootReference
 
-      await Promise.any(pool.current.publish(relays, root))
-      pool.current.trackRelays = true
-      await pool.current.get(relays, {ids: [root.id]})
-      pool.current.trackRelays = false
-      setBaseTag(prev => {
-        rootReference[2] = Array.from(pool.current.seenOn.get(root.id))[0].url
+    console.log('base: ', rootReference[0])
 
-        return {
-          filter: {'#e': [root.id]},
-          reference: rootReference
-        }
-      })
-    }
-
-    console.log('base: ', rootReference)
-
-    let inReplyTo = []
-    if (parentId) {
-      inReplyTo.push([
-        'e',
-        parentId,
-        Array.from(pool.current.seenOn.get(parentId))[0].url,
-        'reply'
-      ])
+    let inReplyTo
+    if (parent) {
+      inReplyTo = [
+        [
+          'e',
+          parent.id,
+          Array.from(pool.current.seenOn.get(parent.id))[0].url,
+          parent.pubkey
+        ],
+        ['k', parent.kind.toString()],
+        ['p', parent.pubkey]
+      ]
+    } else {
+      inReplyTo = baseTag.parentReference
     }
 
     let event = {
       pubkey: publicKey,
       created_at: Math.round(Date.now() / 1000),
-      kind: 1,
-      tags: [rootReference].concat(inReplyTo),
+      kind: 1111,
+      tags: rootReference.concat(inReplyTo),
       content: comment
     }
 

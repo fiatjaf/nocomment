@@ -52,7 +52,7 @@ export default function Thread({
         {!readonly && <ReplyButton onClick={() => setExpanded(!expanded)} />}
       </div>
       <CommentContent>{thread.content}</CommentContent>
-      {expanded && <ReplyWrap>{replyForm(thread.id)}</ReplyWrap>}
+      {expanded && <ReplyWrap>{replyForm(thread)}</ReplyWrap>}
       <div
         style={{
           paddingLeft: `${36 - 6 * Math.pow(1.2, level)}px`
@@ -111,7 +111,7 @@ export function computeThreads(baseTag, events) {
         }
 
         // use the last "e" tag if none are marked as "reply"
-        if (curr === null) curr = tag[1]
+        if (curr === null || tag[0] === 'a') curr = tag[1]
       }
     }
     return curr
