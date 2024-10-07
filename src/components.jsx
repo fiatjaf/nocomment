@@ -169,6 +169,7 @@ export const Textarea = styled.textarea`
   padding: 5px 6px;
   margin-bottom: 12px;
   height: 96px;
+  box-sizing: border-box;
 
   &:focus {
     border: 0;
