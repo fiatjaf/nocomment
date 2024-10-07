@@ -97,7 +97,7 @@ export function Editor({
     } else {
       // otherwise use a key from localStorage or generate a new one
       let privateKey = localStorage.getItem('nostrkey')
-      if (!privateKey || privateKey.match(/^[a-f0-9]{64}$/)) {
+      if (!privateKey || !privateKey.match(/^[a-f0-9]{64}$/)) {
         privateKey = generateSecretKey()
         localStorage.setItem('nostrkey', bytesToHex(privateKey))
       } else {
