@@ -221,9 +221,6 @@ export function NoComment({
         privateKey={privateKey}
         setPrivateKey={setPrivateKey}
         baseTag={baseTag}
-        ownerTag={ownerTag}
-        url={url}
-        setBaseTag={setBaseTag}
         pool={pool}
         parent={parent}
         relays={chosenRelays}
