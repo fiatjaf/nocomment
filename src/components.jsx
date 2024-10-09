@@ -152,7 +152,6 @@ export const CommentDate = styled.a`
 
 export const CommentContent = styled.div`
   margin-top: 8px;
-  max-height: 306px;
   max-width: 600px;
   white-space: pre-wrap;
   word-break: break-all;
