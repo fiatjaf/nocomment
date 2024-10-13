@@ -1182,10 +1182,10 @@ natural-compare@^1.4.0:
   resolved "https://registry.yarnpkg.com/natural-compare/-/natural-compare-1.4.0.tgz#4abebfeed7541f2c27acfb29bdbbd15c8d5ba4f7"
   integrity sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==
 
-nostr-tools@^2.7.2:
-  version "2.7.2"
-  resolved "https://registry.yarnpkg.com/nostr-tools/-/nostr-tools-2.7.2.tgz#74a6ff543a81da1dcce9563b9317faa17221acce"
-  integrity sha512-Bq3Ug0SZFtgtL1+0wCnAe8AJtI7yx/00/a2nUug9SkhfOwlKS92Tef12iCK9FdwXw+oFZWMtRnSwcLayQso+xA==
+nostr-tools@^2.8.0:
+  version "2.8.0"
+  resolved "https://registry.yarnpkg.com/nostr-tools/-/nostr-tools-2.8.0.tgz#365f07f3b5b3495366b4915941982c96babc3c9b"
+  integrity sha512-aumZBa9Ok/cAJLovSBCIA/DkJjLjF/Hs5DpQGEjmyfaUkGBqd5jZjzalcVMyy/9HkkRZfJmbTPtqHTKFNvBSHQ==
   dependencies:
     "@noble/ciphers" "^0.5.1"
     "@noble/curves" "1.2.0"
