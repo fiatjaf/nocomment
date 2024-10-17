@@ -162,17 +162,18 @@ export function Editor({
 
     console.log('publishing...')
 
+    pool.current.trackRelays = true
     let pub = Promise.allSettled(pool.current.publish(relays, event))
     pub.then(async _ => {
       clearTimeout(publishTimeout)
-      pool.current.trackRelays = true
-      await pool.current.querySync(relays, {ids: [event.id]})
-      pool.current.trackRelays = false
       pool.current.seenOn.get(event.id).forEach(relay => {
         showNotice(`event ${event.id.slice(0, 5)}… published to ${relay.url}.`)
         setComment('')
         setEditable(true)
       })
+    })
+    .finally(() => {
+      pool.current.trackRelays = false
     })
   }
 
