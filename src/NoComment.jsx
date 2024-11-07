@@ -47,6 +47,7 @@ export function NoComment({
   const [metadata, setMetadata] = useState({})
   const metadataFetching = useRef({})
   const pool = useRef(new SimplePool())
+  pool.current.trackRelays = true
   const [baseTag] = useDebounce(baseTagImmediate, 1000)
   const [events] = useDebounce(eventsImmediate, 1000, {leading: true})
   const threads = useMemo(() => {
@@ -77,7 +78,6 @@ export function NoComment({
         filter = {ids: [id]}
       }
 
-      pool.current.trackRelays = true
       pool.current.get(relays, filter)
         .then(event => {
           relay = relay || Array.from(pool.current.seenOn.get(event.id))[0].url
@@ -119,9 +119,6 @@ export function NoComment({
             })
           }
         })
-        .finally(() => {
-          pool.current.trackRelays = false
-        })
     }
   }, [customBase])
 
@@ -129,7 +126,6 @@ export function NoComment({
     if (customBase) return
 
     // search for the base event based on the #r tag (url)
-    pool.current.trackRelays = true
     pool.current
       .querySync(chosenRelays, {
         '#r': [url],
@@ -163,16 +159,12 @@ export function NoComment({
           parentReference
         })
       })
-      .finally(() => {
-        pool.current.trackRelays = false
-      })
   }, [chosenRelays.length])
 
   useEffect(() => {
     if (!baseTag) return
 
     // query for comments
-    pool.current.trackRelays = true
     let sub = pool.current.subscribeMany(chosenRelays, baseTag.filters, {
       onevent(event) {
         setEvents(events => insertEventIntoDescendingList(events, event))
@@ -183,10 +175,7 @@ export function NoComment({
 
     let i = 0
 
-    return () => {
-      sub.close()
-      pool.current.trackRelays = false
-    }
+    return () => sub.close()
   }, [baseTag, chosenRelays.length])
 
   if (skip && skip !== '' && skip === location.pathname) {

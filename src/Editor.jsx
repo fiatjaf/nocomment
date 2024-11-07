@@ -162,7 +162,6 @@ export function Editor({
 
     console.log('publishing...')
 
-    pool.current.trackRelays = true
     let pub = Promise.allSettled(pool.current.publish(relays, event))
     pub.then(async _ => {
       clearTimeout(publishTimeout)
@@ -171,9 +170,6 @@ export function Editor({
         setComment('')
         setEditable(true)
       })
-    })
-    .finally(() => {
-      pool.current.trackRelays = false
     })
   }
 
