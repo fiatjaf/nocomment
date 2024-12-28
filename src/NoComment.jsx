@@ -22,7 +22,7 @@ export function NoComment({
   let ownerTag = null
   if (owner) {
     try {
-      let {type, data} = nip19.decode(ownerTag)
+      let {type, data} = nip19.decode(owner)
       switch (type) {
         case 'npub':
           ownerTag = ['p', data]
