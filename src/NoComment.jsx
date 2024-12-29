@@ -25,10 +25,10 @@ export function NoComment({
       let {type, data} = nip19.decode(owner)
       switch (type) {
         case 'npub':
-          ownerTag = ['p', data]
+          ownerTag = [data]
           break
         case 'nprofile':
-          ownerTag = ['p', data.pubkey]
+          ownerTag = [data.pubkey]
           if (data.relays.length > 0) {
             ownerTag.push(data.relays[0])
           }
@@ -36,7 +36,7 @@ export function NoComment({
       }
     } catch (err) {
       if (owner.match(/^[a-f0-9]{64}$/)) {
-        ownerTag = ['p', owner]
+        ownerTag = [owner]
       }
     }
   }
@@ -91,7 +91,8 @@ export function NoComment({
               ],
               rootReference: [
                 ['A', address, relay],
-                ['K', event.kind.toString()]
+                ['K', event.kind.toString()],
+                ['P', event.pubkey]
               ],
               parentReference: [
                 ['a', address, relay],
@@ -109,7 +110,8 @@ export function NoComment({
               ],
               rootReference: [
                 ['E', id, relay, event.pubkey],
-                ['K', event.kind.toString()]
+                ['K', event.kind.toString()],
+                ['P', event.pubkey]
               ],
               parentReference: [
                 ['e', id, relay, event.pubkey],
@@ -142,20 +144,22 @@ export function NoComment({
 
         let urlObj = new URL(url)
         let domain = `${urlObj.protocol}//${urlObj.host}`
+        let rootReference = [
+          ['I', url],
+          ['K', domain]
+        ]
         let parentReference = [
           ['i', url],
           ['k', domain]
         ]
         if (ownerTag) {
-          parentReference.push(ownerTag)
+          rootReference.push(['P', ...ownerTag])
+          parentReference.push(['p', ...ownerTag])
         }
 
         setBaseTag({
           filters,
-          rootReference: [
-            ['I', url],
-            ['K', domain]
-          ],
+          rootReference,
           parentReference
         })
       })
