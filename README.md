@@ -52,7 +52,7 @@ Custom CSS variables for styling:
 4. It just works. The URL is the identifier.
 
 ```
-import { NoComment } from 'nocomment'
+import { NoComment } from 'react-nocomment'
 
 function App() {
   return (
